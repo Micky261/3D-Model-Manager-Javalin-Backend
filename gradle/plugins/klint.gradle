@@ -1,0 +1,26 @@
+apply plugin: "org.jlleitschuh.gradle.ktlint"
+
+dependencies {
+    ktlintRuleset(files("gradle/plugins/ktlintrules-1.1.1.jar"))
+}
+
+ktlint {
+    debug = true
+    version = "1.2.1"
+    verbose = true
+    outputToConsole = true
+    enableExperimentalRules = true
+    additionalEditorconfig = [
+            "ktlint_code_style": "intellij_idea",
+    ]
+    reporters {
+        reporter "plain"
+        reporter "checkstyle"
+    }
+    filter {
+        exclude("**/generated/**")
+        include("**/kotlin/**")
+    }
+
+    disabledRules = ["ClassDocumentationRule", "FunctionDocumentationRule", "ParameterDocumentationOrderRule.class"]
+}

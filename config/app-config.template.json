@@ -1,0 +1,60 @@
+{
+    "general": {
+        "enableCors": false,
+        "baseDir": "",
+        "serverPort": "8261"
+    },
+    "database": {
+        "db": "mysql",
+        "host": "localhost",
+        "port": "3306",
+        "name": "db_name",
+        "username": "username",
+        "password": "password"
+    },
+    "mail": {
+        "mailer": "smtp",
+        "host": "smtp.server.com",
+        "port": "587",
+        "encryption": "tls",
+        "username": "user@example.com",
+        "password": "password",
+        "from_address": "user@example.com",
+        "from_name": "3DMM (Dev)"
+    },
+    "importer": {
+        "myminifactory": {
+            "apiKey": ""
+        },
+        "thingiverse": {
+            "apiKey": ""
+        },
+        "sketchfab": {
+            "apiKey": ""
+        },
+        "printables": true,
+        "instructables": false,
+        "cults3d": {
+            "username": "",
+            "password": ""
+        }
+    },
+    "storage": [
+        {
+            "type": "local",
+            "name": "Default",
+            "url": "/",
+            "capacity": "25G",
+            "default": true
+        },
+        {
+            "type": "webdav",
+            "name": "Personal Nextcloud",
+            "url": "https://nc.example.com/remote.php/dav/files/<username>/<path to subfolder>/",
+            "capacity": "25G",
+            "username": "username",
+            "password": "app-password",
+            "default": false
+        }
+    ]
+}

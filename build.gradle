@@ -1,0 +1,98 @@
+plugins {
+    id "org.jetbrains.kotlin.jvm" version "2.0.0"
+    id "org.jetbrains.kotlin.kapt" version "2.0.0"
+
+    id "org.jlleitschuh.gradle.ktlint" version "12.1.1"
+    id "io.gitlab.arturbosch.detekt" version "1.23.6"
+
+    id "com.github.johnrengelman.shadow" version "8.1.1"
+    id "application"
+
+    // Check vor updates with `gradle-upgrade-interactive` (npm package)
+    id "com.github.ben-manes.versions" version "0.51.0"
+}
+
+apply from: "$rootDir/gradle/plugins/klint.gradle"
+apply from: "$rootDir/gradle/plugins/detekt.gradle"
+
+group = "de.fnelles"
+version = "1.0-SNAPSHOT"
+
+application {
+    mainClass = "core/BackendKt"
+}
+
+shadowJar {
+    mergeServiceFiles()
+}
+
+repositories {
+    mavenCentral()
+    maven { url "https://repo1.maven.org/maven2/" }
+}
+
+dependencies {
+    implementation group: "io.github.cdimascio", name: "dotenv-kotlin", version: "6.4.1"
+
+    implementation group: "io.javalin", name: "javalin-bundle", version: "6.2.0"
+    implementation group: "io.javalin.community.openapi", name: "javalin-openapi-plugin", version: "6.2.0"
+    kapt group: "io.javalin.community.openapi", name: "openapi-annotation-processor", version: "6.2.0"
+    annotationProcessor group: "io.javalin.community.openapi", name: "openapi-annotation-processor", version: "6.2.0"
+
+    def brotliVersion = "1.16.0"
+    implementation group: "com.aayushatharva.brotli4j", name: "brotli4j", version: "$brotliVersion"
+    implementation group: "com.aayushatharva.brotli4j", name: "native-windows-x86_64", version: "$brotliVersion"
+    implementation group: "com.aayushatharva.brotli4j", name: "native-windows-aarch64", version: "$brotliVersion"
+    implementation group: "com.aayushatharva.brotli4j", name: "native-osx-aarch64", version: "$brotliVersion"
+    implementation group: "com.aayushatharva.brotli4j", name: "native-linux-aarch64", version: "$brotliVersion"
+    implementation group: "com.aayushatharva.brotli4j", name: "native-linux-x86_64", version: "$brotliVersion"
+    implementation group: "com.aayushatharva.brotli4j", name: "native-linux-armv7", version: "$brotliVersion"
+    implementation group: "com.aayushatharva.brotli4j", name: "native-linux-ppc64le", version: "$brotliVersion"
+    implementation group: "com.aayushatharva.brotli4j", name: "native-linux-s390x", version: "$brotliVersion"
+    implementation group: "com.aayushatharva.brotli4j", name: "native-linux-riscv64", version: "$brotliVersion"
+    implementation group: "io.swagger.core.v3", name: "swagger-core", version: "2.2.22"
+
+    implementation group: "com.zaxxer", name: "HikariCP", version: "5.1.0"
+    implementation group: "org.jdbi", name: "jdbi3-core", version: "3.45.2"
+    implementation group: "org.jdbi", name: "jdbi3-kotlin", version: "3.45.2"
+    implementation group: "org.jdbi", name: "jdbi3-postgres", version: "3.45.2"
+    implementation group: "org.jdbi", name: "jdbi3-kotlin-sqlobject", version: "3.45.2"
+    implementation group: "org.postgresql", name: "postgresql", version: "42.7.3"
+    implementation group: "org.mariadb.jdbc", name: "mariadb-java-client", version: "3.4.1"
+    implementation group: "org.flywaydb", name: "flyway-core", version: "9.22.3" // 10.x needs Java 17
+    implementation group: "org.flywaydb", name: "flyway-mysql", version: "9.22.3" // 10.x needs Java 17
+
+    implementation group: "com.github.kittinunf.fuel", name: "fuel", version: "2.3.1"
+    implementation group: "com.github.kittinunf.fuel", name: "fuel-jackson", version: "2.3.1"
+    implementation group: "com.github.kittinunf.fuel", name: "fuel-coroutines", version: "2.3.1"
+
+    implementation group: "com.google.inject", name: "guice", version: "7.0.0"
+    implementation group: "dev.misfitlabs.kotlinguice4", name: "kotlin-guice", version: "3.0.0"
+    implementation group: "com.google.guava", name: "guava", version: "33.2.0-jre"
+
+    implementation group: "org.slf4j", name: "slf4j-simple", version: "2.0.9"
+
+    implementation group: "com.fasterxml.jackson.module", name: "jackson-module-kotlin", version: "2.17.1"
+    implementation group: "com.fasterxml.jackson.datatype", name: "jackson-datatype-jsr310", version: "2.17.1"
+    implementation group: "de.undercouch", name: "bson4jackson", version: "2.15.1"
+
+    implementation group: "org.jetbrains.kotlinx", name: "kotlinx-coroutines-core", version: "1.8.1"
+    implementation group: "org.jetbrains.kotlin", name: "kotlin-stdlib", version: "2.0.0"
+
+    implementation group: "commons-codec", name: "commons-codec", version: "1.17.1"
+    implementation group: "commons-io", name: "commons-io", version: "2.16.1"
+    implementation group: "org.apache.commons", name: "commons-compress", version: "1.26.2"
+    implementation group: "org.apache.commons", name: "commons-lang3", version: "3.15.0"
+
+    implementation group: "net.lingala.zip4j", name: "zip4j", version: "2.11.5"
+
+    implementation group: "at.favre.lib", name: "bcrypt", version: "0.10.2"
+
+    implementation group: "com.github.lookfirst", name: "sardine", version: "5.12"
+
+    implementation group: "io.github.furstenheim", name: "copy_down", version: "1.1"
+}
+
+kotlin {
+    jvmToolchain(11)
+}
