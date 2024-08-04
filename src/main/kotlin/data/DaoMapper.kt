@@ -2,6 +2,7 @@ package data
 
 import com.google.inject.Inject
 import com.google.inject.Provider
+import data.dao.CollectionDao
 import data.dao.ModelDao
 import data.dao.ModelFileDao
 import data.dao.ModelLinkDao
@@ -11,6 +12,11 @@ import data.dao.UserDao
 import org.jdbi.v3.core.Jdbi
 import org.jdbi.v3.sqlobject.kotlin.onDemand
 
+class CollectionDaoProvider @Inject constructor(
+    private val jdbi: Jdbi,
+) : Provider<CollectionDao> {
+    override fun get(): CollectionDao = jdbi.onDemand()
+}
 class ModelDaoProvider @Inject constructor(
     private val jdbi: Jdbi,
 ) : Provider<ModelDao> {

@@ -9,6 +9,7 @@ import data.dao.ModelDaoClass
 class ModelService @Inject constructor(
     private val modelDao: ModelDao,
     private val modelDaoClass: ModelDaoClass,
+    private val collectionService: CollectionService,
     private val modelFileService: ModelFileService,
     private val modelLinkService: ModelLinkService,
     private val modelTagsService: ModelTagsService,
@@ -61,6 +62,10 @@ class ModelService @Inject constructor(
         )
     }
 
+    fun get(id: Long): Model? {
+        return modelDao.get(id) ?: return null
+    }
+
     fun update(updatedModel: Model): ModelFull {
         modelDao.update(updatedModel)
 
@@ -76,6 +81,9 @@ class ModelService @Inject constructor(
         modelFileService.getModelFiles(id, userId).forEach { modelFileService.deleteModelFile(userId, it.id) }
         modelLinkService.get(userId, id).forEach { modelLinkService.delete(it.id, userId) }
         modelTagsService.get(userId, id).forEach { modelTagsService.delete(it) }
+        collectionService.getCollectionIdsByModel(id).forEach { collectionId ->
+            collectionService.deleteRelation(collectionId, id)
+        }
         modelDao.delete(id, userId)
     }
 

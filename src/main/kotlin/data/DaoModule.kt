@@ -1,5 +1,6 @@
 package data
 
+import data.dao.CollectionDao
 import data.dao.ModelDao
 import data.dao.ModelDaoClass
 import data.dao.ModelFileDao
@@ -11,6 +12,7 @@ import dev.misfitlabs.kotlinguice4.KotlinModule
 
 object DaoModule : KotlinModule() {
     override fun configure() {
+        bind<CollectionDao>().toProvider<CollectionDaoProvider>()
         bind<ModelDao>().toProvider<ModelDaoProvider>()
         bind<ModelDaoClass>()
         bind<ModelFileDao>().toProvider<ModelFileDaoProvider>()

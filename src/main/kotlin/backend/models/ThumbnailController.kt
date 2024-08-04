@@ -47,4 +47,12 @@ class ThumbnailController @Inject constructor(
             ctx.result(thumbnailService.getDefaultThumbnail(format, size))
         }
     }
+
+    fun getDefaultThumbnail(ctx: Context) {
+        val size = ctx.queryParamAsClass<Int>("size").get()
+        val format = ctx.queryParamAsClass<ThumbnailFormat>("format").getOrDefault(ThumbnailFormat.Rectangular)
+
+        ctx.contentType(FileType.getMimeType("jpg"))
+        ctx.result(thumbnailService.getDefaultThumbnail(format, size))
+    }
 }

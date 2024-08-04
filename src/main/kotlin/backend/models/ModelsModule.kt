@@ -39,6 +39,7 @@ object ModelsModule : ControllerModule() {
 
         route<ThumbnailController> { controller ->
             path("thumbnails/") {
+                get("default", controller::getDefaultThumbnail, JavalinRole.Authorized)
                 get("file/{fileId}", controller::getThumbnail, JavalinRole.Authorized)
                 get("model/{modelId}/main", controller::getMainThumbnail, JavalinRole.ModelOwnerOnly)
             }

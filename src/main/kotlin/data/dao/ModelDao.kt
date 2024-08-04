@@ -53,15 +53,11 @@ interface ModelDao {
         @Bind("count") count: Int,
     ): List<Model>
 
-    @SqlQuery(
-        """
-            SELECT * FROM models WHERE id = :id AND user_id = :userId
-        """,
-    )
-    fun get(
-        @Bind("id") id: Long,
-        @Bind("userId") userId: Long,
-    ): Model?
+    @SqlQuery("SELECT * FROM models WHERE id = :id")
+    fun get(@Bind("id") id: Long): Model?
+
+    @SqlQuery("SELECT * FROM models WHERE id = :id AND user_id = :userId")
+    fun get(@Bind("id") id: Long, @Bind("userId") userId: Long): Model?
 
     @SqlUpdate(
         """
@@ -72,15 +68,8 @@ interface ModelDao {
         @BindBean model: Model,
     )
 
-    @SqlUpdate(
-        """
-            DELETE FROM models WHERE id = :id AND user_id = :userId
-        """,
-    )
-    fun delete(
-        @Bind("id") id: Long,
-        @Bind("userId") userId: Long,
-    )
+    @SqlUpdate("DELETE FROM models WHERE id = :id AND user_id = :userId")
+    fun delete(@Bind("id") id: Long, @Bind("userId") userId: Long)
 
     @SqlQuery(
         """
