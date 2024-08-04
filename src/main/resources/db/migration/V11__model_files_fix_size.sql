@@ -1,2 +1,2 @@
-alter table model_files
-    modify size BIGINT UNSIGNED not null;
+ALTER TABLE model_files
+    MODIFY size bigint UNSIGNED NOT NULL;

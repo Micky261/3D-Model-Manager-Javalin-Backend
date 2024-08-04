@@ -43,7 +43,7 @@ abstract class BaseImporter {
             return returnValue
         }
 
-        fun getImporter(importer: ImportSource): BaseImporter? {
+        fun getImporter(importer: ImportSource): BaseImporter {
             return when (importer) {
                 ImportSource.Cults3D -> Cults3DImporter()
                 ImportSource.Instructables -> InstructablesImporter()
