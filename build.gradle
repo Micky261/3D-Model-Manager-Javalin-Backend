@@ -56,7 +56,7 @@ dependencies {
     implementation group: "org.jdbi", name: "jdbi3-core", version: "3.45.2"
     implementation group: "org.jdbi", name: "jdbi3-kotlin", version: "3.45.2"
     implementation group: "org.jdbi", name: "jdbi3-postgres", version: "3.45.2"
-    implementation group: "org.jdbi", name: "jdbi3-kotlin-sqlobject", version: "3.45.2"
+    implementation group: "org.jdbi", name: "jdbi3-kotlin-sqlobject", version: "3.45.3"
     implementation group: "org.postgresql", name: "postgresql", version: "42.7.3"
     implementation group: "org.mariadb.jdbc", name: "mariadb-java-client", version: "3.4.1"
     implementation group: "org.flywaydb", name: "flyway-core", version: "9.22.3" // 10.x needs Java 17
