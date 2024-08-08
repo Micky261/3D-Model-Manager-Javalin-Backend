@@ -65,7 +65,7 @@ jobs:
         # Push is a shorthand for --output=type=registry
         push: true
         # List of tags
-        tags: # optional
+        #tags: # optional
           
 
     #- name: Build with Gradle Wrapper
