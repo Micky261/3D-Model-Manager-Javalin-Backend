@@ -33,6 +33,9 @@ jobs:
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@dbbdc275be76ac10734476cc723d82dfe7ec6eda # v3.4.2
 
+    - name: Make gradlew executable
+      run: chmod +x ./gradlew
+      
     # Run Detekt
     - name: Run Detekt
       run: ./gradlew detekt
