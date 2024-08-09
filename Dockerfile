@@ -82,6 +82,11 @@ ENV 3DMM_STATS_JAVALIN_PORT=8421
 
 # Copy backend
 COPY 3DMM-all.jar /opt/backend/3DMM-all.jar
-COPY config/app-config.json /config/app-config.json
+COPY config/app-config.template.json /config/app-config.json
 
 EXPOSE $3DMM_STATS_JAVALIN_PORT
+
+# Check version endpoint
+HEALTHCHECK CMD curl --fail http://localhost:$3DMM_STATS_JAVALIN_PORT/api/version || exit 1
+
+CMD ["java", "-jar", "/opt/backend/3DMM-all.jar"]
