@@ -78,15 +78,15 @@ RUN { echo '#/bin/sh'; echo 'echo "$JAVA_HOME"'; } > /usr/local/bin/docker-java-
 #    && apt-get install -y iputils-ping
 ######################################
 
-ENV 3DMM_STATS_JAVALIN_PORT=8421
+ENV STATS_JAVALIN_PORT=8421
 
 # Copy backend
 COPY 3DMM-all.jar /opt/backend/3DMM-all.jar
 COPY config/app-config.template.json /config/app-config.json
 
-EXPOSE $3DMM_STATS_JAVALIN_PORT
+EXPOSE $STATS_JAVALIN_PORT
 
 # Check version endpoint
-HEALTHCHECK CMD curl --fail http://localhost:$3DMM_STATS_JAVALIN_PORT/api/version || exit 1
+HEALTHCHECK CMD curl --fail http://localhost:$STATS_JAVALIN_PORT/api/version || exit 1
 
 CMD ["java", "-jar", "/opt/backend/3DMM-all.jar"]
