@@ -64,7 +64,7 @@ jobs:
       uses: docker/build-push-action@v6.6.1
       with:
         # Path to the Dockerfile
-        file: ./
+        # file: ./
         # Push is a shorthand for --output=type=registry
         push: true
         # List of tags
