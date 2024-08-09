@@ -44,6 +44,10 @@ jobs:
     - name: Run KtLint
       run: ./gradlew ktlintCheck
 
+    # Build the shadow JAR
+    - name: Build Shadow JAR
+      run: ./gradlew shadowJar
+
     # show the shadow JAR
     - name: Print Libs Folder
       run: ls ./build/libs
