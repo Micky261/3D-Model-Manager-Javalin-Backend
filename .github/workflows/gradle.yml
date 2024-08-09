@@ -64,11 +64,11 @@ jobs:
       uses: docker/build-push-action@v6.6.1
       with:
         # Path to the Dockerfile
-        file: ./docker
+        file: ./
         # Push is a shorthand for --output=type=registry
         push: true
         # List of tags
-        #tags: # optional
+        tags: 3dmm/backend:latest
           
 
     #- name: Build with Gradle Wrapper
