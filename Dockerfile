@@ -81,7 +81,7 @@ RUN { echo '#/bin/sh'; echo 'echo "$JAVA_HOME"'; } > /usr/local/bin/docker-java-
 ENV STATS_JAVALIN_PORT=8421
 
 # Copy backend
-COPY ./3DMM-all.jar /opt/backend/3DMM-all.jar
+COPY 3DMM-all.jar /opt/backend/3DMM-all.jar
 COPY config/app-config.template.json /config/app-config.json
 
 EXPOSE $STATS_JAVALIN_PORT
