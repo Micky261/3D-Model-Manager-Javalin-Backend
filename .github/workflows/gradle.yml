@@ -79,6 +79,7 @@ jobs:
         push: true
         # List of tags
         tags: 3dmm/backend:latest
+        context: .
           
 
     #- name: Build with Gradle Wrapper
