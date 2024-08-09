@@ -44,9 +44,13 @@ jobs:
     - name: Run KtLint
       run: ./gradlew ktlintCheck
 
-    # Build the shadow JAR
-    - name: Build Shadow JAR
-      run: ./gradlew shadowJar
+    # show the shadow JAR
+    - name: Print Libs Folder
+      run: ls build/libs
+
+    # Print 
+    - name: Copy Shadow JAR
+      run: cp build/libs/*-all.jar ./3DMM-all.jar
 
     # Copy the Shadow JAR to root
     - name: Copy Shadow JAR
