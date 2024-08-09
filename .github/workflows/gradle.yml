@@ -46,7 +46,7 @@ jobs:
 
     # show the shadow JAR
     - name: Print Libs Folder
-      run: ls build/libs
+      run: ls ./build/libs
 
     # Print 
     - name: Copy Shadow JAR
