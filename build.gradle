@@ -53,7 +53,7 @@ dependencies {
     implementation group: "io.swagger.core.v3", name: "swagger-core", version: "2.2.22"
 
     implementation group: "com.zaxxer", name: "HikariCP", version: "5.1.0"
-    implementation group: "org.jdbi", name: "jdbi3-core", version: "3.45.2"
+    implementation group: "org.jdbi", name: "jdbi3-core", version: "3.45.4"
     implementation group: "org.jdbi", name: "jdbi3-kotlin", version: "3.45.3"
     implementation group: "org.jdbi", name: "jdbi3-postgres", version: "3.45.3"
     implementation group: "org.jdbi", name: "jdbi3-kotlin-sqlobject", version: "3.45.3"
