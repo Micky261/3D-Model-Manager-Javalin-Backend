@@ -20,7 +20,7 @@ class Metadata(
     val user: JsonNode,
     val viewerUrl: String,
     val isDownloadable: Boolean,
-    val description: String
+    val description: String,
 )
 
 class SketchfabImporter : BaseImporter() {
