@@ -1,5 +1,6 @@
 package data.importer
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.github.kittinunf.fuel.Fuel
@@ -10,41 +11,16 @@ import data.bean.ModelFileType
 import data.bean.ModelTag
 import utils.authToken
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 class Metadata(
-    val animationCount: Int,
-    val categories: JsonNode,
-    val commentCount: Int,
-    val createdAt: String,
-    val embedUrl: String,
-    val faceCount: Int,
-    val isAgeRestricted: Boolean,
     val license: JsonNode,
-    val likeCount: Int,
     val name: String,
-    val publishedAt: String,
-    val soundCount: Int,
-    val staffpickedAt: Int,
     val tags: JsonNode,
     val thumbnails: JsonNode,
-    val uid: String,
-    val uri: String,
     val user: JsonNode,
-    val vertexCount: Int,
-    val viewCount: Int,
     val viewerUrl: String,
     val isDownloadable: Boolean,
-    val isProtected: Boolean,
-    val description: String,
-    val price: Float,
-    val downloadCount: Int,
-    val editorUrl: String,
-    val status: JsonNode,
-    val source: String,
-    val hasCommentsDisabled: Boolean,
-    val updatedAt: String,
-    val pbrType: String,
-    val textureCount: Int,
-    val materialCount: Int,
+    val description: String
 )
 
 class SketchfabImporter : BaseImporter() {
