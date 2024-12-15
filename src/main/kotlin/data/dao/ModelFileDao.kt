@@ -112,4 +112,38 @@ interface ModelFileDao {
         @Bind("type") type: ModelFileType,
         @Bind("filename") filename: String,
     ): Long
+
+    @SqlQuery(
+        """
+            SELECT * FROM model_files WHERE model_id = :modelId AND user_id = :userId AND type = :type AND filename = :filename
+        """,
+    )
+    fun getModelFile(
+        @Bind("modelId") modelId: Long,
+        @Bind("userId") userId: Long,
+        @Bind("type") type: ModelFileType,
+        @Bind("filename") filename: String,
+    ): ModelFile?
+
+    @SqlUpdate(
+        """
+         UPDATE model_files SET storage = :storage, size = :size WHERE id = :fileId
+      """,
+    )
+    fun updateFileInformation(
+        @Bind("fileId") fileId: Long,
+        @Bind("storage") storage: String,
+        @Bind("size") size: Long,
+    )
+
+    @SqlQuery(
+        """
+            SELECT COALESCE(MAX(position), 0) as c FROM model_files WHERE model_id = :modelId AND user_id = :userId AND type = :type
+        """,
+    )
+    fun maxPosition(
+        @Bind("userId") userId: Long,
+        @Bind("modelId") modelId: Long,
+        @Bind("type") type: ModelFileType,
+    ): Long
 }

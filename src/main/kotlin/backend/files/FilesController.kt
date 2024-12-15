@@ -78,8 +78,11 @@ class FilesController @Inject constructor(
         val modelId = ctx.modelId()
         val filename = ctx.formParamAsClass<String>("filename").get()
         val type = ctx.formParamAsClass<ModelFileType>("type").get()
+        val forceOverwrite = ctx.formParamAsClass<Boolean>("force-overwrite").get()
 
-        if (modelFileService.exists(userId, modelId, type, filename)) {
+        val modelExists = modelFileService.exists(userId, modelId, type, filename)
+
+        if (modelExists && !forceOverwrite) {
             ServerMessage("TargetAlreadyExists", "File already exists.").send(ctx, 409)
         } else {
             val file = ctx.uploadedFile("file")
@@ -96,25 +99,51 @@ class FilesController @Inject constructor(
                     val chunking = Chunking(totalChunks, path, filename)
                     val targetFile = chunking.putTogether()
 
-                    val storage = Storage.getRandomStorageClass(targetFile.length())
-                    storage.uploadFile(
-                        targetFile.inputStream(),
-                        storage.getUserFileTypePath(userId, modelId, type),
-                        filename,
-                    )
+                    if (modelExists) {
+                        // Delete existing file
+                        val existingFile = modelFileService.getModelFile(userId, modelId, type, filename)!!
+                        val delStorage = Storage.getStorageClassByName(existingFile.storage)
+                        delStorage.deleteFile(delStorage.getUserFilePath(userId, modelId, type, filename))
 
-                    modelFileService.insertModelFile(
-                        ModelFile(
-                            -1,
-                            storage.storageConfig.name,
-                            userId,
-                            modelId,
-                            type,
+                        // Upload new file
+                        val uploadStorage = Storage.getRandomStorageClass(targetFile.length())
+                        uploadStorage.uploadFile(
+                            targetFile.inputStream(),
+                            uploadStorage.getUserFileTypePath(userId, modelId, type),
                             filename,
-                            999,
+                        )
+
+                        // Update db information
+                        modelFileService.overwriteFileInformation(
+                            existingFile.id,
+                            uploadStorage.storageConfig.name,
                             targetFile.length(),
-                        ),
-                    )
+                        )
+                    } else {
+                        // Upload file
+                        val storage = Storage.getRandomStorageClass(targetFile.length())
+                        storage.uploadFile(
+                            targetFile.inputStream(),
+                            storage.getUserFileTypePath(userId, modelId, type),
+                            filename,
+                        )
+
+                        // Calculate next position
+                        val highestPosition = modelFileService.getMaxPosition(userId, modelId, type)
+
+                        modelFileService.insertModelFile(
+                            ModelFile(
+                                -1,
+                                storage.storageConfig.name,
+                                userId,
+                                modelId,
+                                type,
+                                filename,
+                                highestPosition + 1,
+                                targetFile.length(),
+                            ),
+                        )
+                    }
 
                     if (FileType.getModelFileTypeFromFilename(filename) === ModelFileType.image) {
                         ThumbnailGenerator(userId, modelId, targetFile.inputStream(), filename).generateThumbnailSet()

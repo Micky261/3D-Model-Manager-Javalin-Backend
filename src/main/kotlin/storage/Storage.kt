@@ -38,6 +38,9 @@ object Storage {
         }
     }
 
+    /**
+     * Get a Storage implementation by the name of the storage (e.g. from ModelFile table)
+     */
     fun getStorageClassByName(storageName: String): AbstractStorage {
         return getStorageClass(getStorageByName(storageName))
     }

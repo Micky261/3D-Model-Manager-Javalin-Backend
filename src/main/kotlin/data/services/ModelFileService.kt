@@ -134,4 +134,16 @@ class ModelFileService @Inject constructor(
     fun exists(userId: Long, modelId: Long, type: ModelFileType, filename: String): Boolean {
         return modelFilesDao.checkDuplicate(modelId, userId, type, filename) != 0L
     }
+
+    fun overwriteFileInformation(fileId: Long, newStorage: String, newFileSize: Long) {
+        modelFilesDao.updateFileInformation(fileId, newStorage, newFileSize)
+    }
+
+    fun getModelFile(userId: Long, modelId: Long, type: ModelFileType, filename: String): ModelFile? {
+        return modelFilesDao.getModelFile(modelId, userId, type, filename)
+    }
+
+    fun getMaxPosition(userId: Long, modelId: Long, type: ModelFileType): Long {
+        return modelFilesDao.maxPosition(userId, modelId, type)
+    }
 }
