@@ -47,7 +47,7 @@ class ThingiverseImporter : BaseImporter() {
         val (_, _, imageLinksResponse) = Fuel.get(baseUrl + "things/$id/images")
             .authToken(personalApiKey).responseString()
 
-        //metadata.get("zip_data").get("images").forEachIndexed { index, image ->
+        // metadata.get("zip_data").get("images").forEachIndexed { index, image ->
 //            Idea to take the more readable filename
 //            val nameSplit= image.get("name").asText().split(".")
 //            val nameContainsExtension = nameSplit.count() > 1 && nameSplit.last().length in 3..4
@@ -68,7 +68,7 @@ class ThingiverseImporter : BaseImporter() {
                 }
         }
 
-        //val (_, _, fileLinksResponse) = Fuel.get(baseUrl + "things/$id/files")
+        // val (_, _, fileLinksResponse) = Fuel.get(baseUrl + "things/$id/files")
         //    .authToken(personalApiKey).responseString()
 
         metadata.get("zip_data").get("files").forEachIndexed { index, fileDownloadLink ->
