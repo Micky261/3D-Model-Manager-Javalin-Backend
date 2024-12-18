@@ -47,6 +47,12 @@ class ThingiverseImporter : BaseImporter() {
         val (_, _, imageLinksResponse) = Fuel.get(baseUrl + "things/$id/images")
             .authToken(personalApiKey).responseString()
 
+        //metadata.get("zip_data").get("images").forEachIndexed { index, image ->
+//            Idea to take the more readable filename
+//            val nameSplit= image.get("name").asText().split(".")
+//            val nameContainsExtension = nameSplit.count() > 1 && nameSplit.last().length in 3..4
+//            val name = if (name)
+
         JacksonModule.mapper.readValue<JsonNode>(imageLinksResponse.get()).forEachIndexed { index, fileDownloadLink ->
             fileDownloadLink.get("sizes")
                 .first { it.get("type").asText() == "display" && it.get("size").asText() == "large" }
@@ -62,12 +68,12 @@ class ThingiverseImporter : BaseImporter() {
                 }
         }
 
-        val (_, _, fileLinksResponse) = Fuel.get(baseUrl + "things/$id/files")
-            .authToken(personalApiKey).responseString()
+        //val (_, _, fileLinksResponse) = Fuel.get(baseUrl + "things/$id/files")
+        //    .authToken(personalApiKey).responseString()
 
-        JacksonModule.mapper.readValue<JsonNode>(fileLinksResponse.get()).forEachIndexed { index, fileDownloadLink ->
+        metadata.get("zip_data").get("files").forEachIndexed { index, fileDownloadLink ->
             storeFile(
-                fileDownloadLink.get("public_url").asText(),
+                fileDownloadLink.get("url").asText(),
                 userId,
                 modelId,
                 ModelFileType.model,
