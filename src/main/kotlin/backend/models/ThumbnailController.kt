@@ -28,8 +28,7 @@ class ThumbnailController @Inject constructor(
             ctx.contentType(FileType.getMimeTypeFromFilename(modelFile.filename))
             ctx.result(file)
         } else {
-            ctx.contentType(FileType.getMimeType("jpg"))
-            ctx.result(thumbnailService.getDefaultThumbnail(format, size))
+            respondWithDefaultThumbnail(ctx, format, size)
         }
     }
 
@@ -39,12 +38,15 @@ class ThumbnailController @Inject constructor(
 
         val modelFile = modelFileService.getMainImage(ctx.modelId(), ctx.userId())
         if (modelFile != null) {
-            val thumb = thumbnailService.getThumbnail(ctx.userId(), ctx.modelId(), format, size, modelFile)!!
-            ctx.contentType(FileType.getMimeTypeFromFilename(modelFile.filename))
-            ctx.result(thumb)
+            val thumb = thumbnailService.getThumbnail(ctx.userId(), ctx.modelId(), format, size, modelFile)
+            if (thumb != null) {
+                ctx.contentType(FileType.getMimeTypeFromFilename(modelFile.filename))
+                ctx.result(thumb)
+            } else {
+                respondWithDefaultThumbnail(ctx, format, size)
+            }
         } else {
-            ctx.contentType(FileType.getMimeType("jpg"))
-            ctx.result(thumbnailService.getDefaultThumbnail(format, size))
+            respondWithDefaultThumbnail(ctx, format, size)
         }
     }
 
@@ -52,6 +54,10 @@ class ThumbnailController @Inject constructor(
         val size = ctx.queryParamAsClass<Int>("size").get()
         val format = ctx.queryParamAsClass<ThumbnailFormat>("format").getOrDefault(ThumbnailFormat.Rectangular)
 
+        respondWithDefaultThumbnail(ctx, format, size)
+    }
+
+    private fun respondWithDefaultThumbnail(ctx: Context, format: ThumbnailFormat, size: Int) {
         ctx.contentType(FileType.getMimeType("jpg"))
         ctx.result(thumbnailService.getDefaultThumbnail(format, size))
     }
