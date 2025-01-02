@@ -9,6 +9,7 @@ import data.dao.ModelLinkDao
 import data.dao.ModelTagsDao
 import data.dao.SessionsDao
 import data.dao.UserDao
+import data.dao.UserSettingsDao
 import org.jdbi.v3.core.Jdbi
 import org.jdbi.v3.sqlobject.kotlin.onDemand
 
@@ -17,6 +18,7 @@ class CollectionDaoProvider @Inject constructor(
 ) : Provider<CollectionDao> {
     override fun get(): CollectionDao = jdbi.onDemand()
 }
+
 class ModelDaoProvider @Inject constructor(
     private val jdbi: Jdbi,
 ) : Provider<ModelDao> {
@@ -45,6 +47,12 @@ class SessionsDaoProvider @Inject constructor(
     private val jdbi: Jdbi,
 ) : Provider<SessionsDao> {
     override fun get(): SessionsDao = jdbi.onDemand()
+}
+
+class UserSettingsDaoProvider @Inject constructor(
+    private val jdbi: Jdbi,
+) : Provider<UserSettingsDao> {
+    override fun get(): UserSettingsDao = jdbi.onDemand()
 }
 
 class UserDaoProvider @Inject constructor(

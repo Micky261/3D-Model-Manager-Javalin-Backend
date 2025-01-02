@@ -9,6 +9,7 @@ import data.services.ModelService
 import data.services.ModelTagsService
 import data.services.SessionsService
 import data.services.UserService
+import data.services.UserSettingsService
 import dev.misfitlabs.kotlinguice4.KotlinModule
 import utils.thumbnail.ThumbnailService
 
@@ -23,6 +24,7 @@ object ServiceModule : KotlinModule() {
         bind<ModelTagsService>()
         bind<SessionsService>()
         bind<UserService>()
+        bind<UserSettingsService>()
 
         // Other services
         bind<AccessService>()

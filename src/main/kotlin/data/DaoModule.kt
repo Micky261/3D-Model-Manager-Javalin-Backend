@@ -8,6 +8,7 @@ import data.dao.ModelLinkDao
 import data.dao.ModelTagsDao
 import data.dao.SessionsDao
 import data.dao.UserDao
+import data.dao.UserSettingsDao
 import dev.misfitlabs.kotlinguice4.KotlinModule
 
 object DaoModule : KotlinModule() {
@@ -20,5 +21,6 @@ object DaoModule : KotlinModule() {
         bind<ModelTagsDao>().toProvider<ModelTagsDaoProvider>()
         bind<SessionsDao>().toProvider<SessionsDaoProvider>()
         bind<UserDao>().toProvider<UserDaoProvider>()
+        bind<UserSettingsDao>().toProvider<UserSettingsDaoProvider>()
     }
 }

@@ -5,6 +5,7 @@ import backend.collections.CollectionModule
 import backend.files.FilesModule
 import backend.importer.ImporterModule
 import backend.models.ModelsModule
+import backend.profile.ProfileModule
 import backend.search.SearchModule
 import backend.tags.TagsModule
 import backend.version.VersionModule
@@ -17,6 +18,7 @@ object BackendModule : KotlinModule() {
         install(FilesModule)
         install(ImporterModule)
         install(ModelsModule)
+        install(ProfileModule)
         install(SearchModule)
         install(TagsModule)
         install(VersionModule)
