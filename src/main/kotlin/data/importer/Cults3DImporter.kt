@@ -9,13 +9,22 @@ import core.config.JacksonModule
 import data.bean.Model
 import data.bean.ModelFileType
 import data.bean.ModelTag
+import data.dto.ServerMessage
+import data.dto.UserSettingKey
+import io.javalin.http.FailedDependencyResponse
+import io.javalin.http.InternalServerErrorResponse
 
 class Cults3DImporter : BaseImporter() {
     private val graphqlUrl = "https://cults3d.com/graphql"
+    private val orderUrl = "https://cults3d.com/en/free_orders?creation_slug="
     private val objectQuery =
         "{\"query\":\"{ creation(slug: \\\"%s\\\") { name(locale: EN) description(locale: EN) creator { nick } " +
             "license { name(locale: EN) } tags(locale: EN) url(locale: EN) illustrations { imageUrl } " +
             "blueprints { imageUrl fileUrl fileExtension } } } \",\"variables\":null}"
+
+    private val ordersQuery = """
+        { myself { ordersBatch (limit: 100, offset: 0) { results { id lines { downloadUrl }}}}}
+    """.trimIndent()
 
     override fun import(userId: Long, args: Map<String, String>): Long {
         val id = args["id"]
@@ -27,6 +36,16 @@ class Cults3DImporter : BaseImporter() {
         val (_, _, responseMetadata) = Fuel.post(graphqlUrl).jsonBody(profileQuery).authentication()
             .basic(username, password).responseString()
         val metadata = JacksonModule.mapper.readValue<JsonNode>(responseMetadata.get()).get("data").get("creation")
+
+        if (userSettingsService.getSetting(userId, UserSettingKey.Cults3dSessionId) == null) {
+            throw FailedDependencyResponse("Cults3dSessionId is not set")
+        }
+        val sessionIdCookie = "_sessionId=" + userSettingsService.getSetting(userId, UserSettingKey.Cults3dSessionId)
+        val (_, response, result) = Fuel.post(orderUrl + id).header("Cookie", sessionIdCookie).responseString()
+
+        if (response.statusCode !in 200..299) {
+            throw InternalServerErrorResponse("order request to Cults3d failed")
+        }
 
         val model = Model(
             -1,
@@ -76,3 +95,4 @@ class Cults3DImporter : BaseImporter() {
         return modelId
     }
 }
+

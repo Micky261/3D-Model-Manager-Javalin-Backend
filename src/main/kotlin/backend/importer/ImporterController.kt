@@ -2,10 +2,13 @@ package backend.importer
 
 import com.google.inject.Inject
 import core.javalin.userId
+import data.dto.ServerMessage
 import data.importer.BaseImporter
 import data.importer.ImportSource
 import data.services.ModelService
 import io.javalin.http.Context
+import io.javalin.http.FailedDependencyResponse
+import io.javalin.http.InternalServerErrorResponse
 import io.javalin.http.NotFoundResponse
 import io.javalin.http.bodyAsClass
 import io.javalin.http.pathParamAsClass
@@ -14,22 +17,23 @@ class ImporterController @Inject constructor(
     private val modelService: ModelService,
 ) {
     fun importModel(ctx: Context) {
-        // TODO: Move to ImportService
         val chosenImporter = ctx.pathParamAsClass<ImportSource>("importer").get()
         val importer = BaseImporter.getImporter(chosenImporter)
 
-        if (importer != null) {
+        try {
             val params = ctx.bodyAsClass<Map<String, String>>()
             val modelId = importer.import(ctx.userId(), params)
-
-            // TODO: Thumbnail generation
-
             ctx.json(modelService.get(ctx.userId(), modelId) ?: throw NotFoundResponse())
+        } catch (e: FailedDependencyResponse) {
+            ServerMessage("MISSING_SESSION_ID", "Cults SessionId is not set").send(ctx, 424)
+        } catch (e: InternalServerErrorResponse) {
+            ServerMessage("ORDER_FAILED", "Order request to Cults3d failed").send(ctx, 500)
+        } catch (e: Exception) {
+            ServerMessage("CONTACT_ADMIN", "Contact admin").send(ctx, 500)
         }
     }
 
     fun getEnabled(ctx: Context) {
-        // TODO: Move to ImportService
         ctx.json(BaseImporter.getEnabledImporters())
     }
 }

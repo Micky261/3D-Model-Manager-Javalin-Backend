@@ -10,13 +10,16 @@ import data.bean.ModelFileType
 import data.services.ModelFileService
 import data.services.ModelService
 import data.services.ModelTagsService
+import data.services.UserSettingsService
 import dev.misfitlabs.kotlinguice4.getInstance
 import io.github.furstenheim.CopyDown
+import net.lingala.zip4j.io.inputstream.ZipInputStream
 import storage.Storage
 
 abstract class BaseImporter {
     protected val modelService = injector.getInstance<ModelService>()
     protected val modelTagsService = injector.getInstance<ModelTagsService>()
+    protected val userSettingsService = injector.getInstance<UserSettingsService>()
     protected val converter: CopyDown = CopyDown()
 
     companion object {
@@ -39,6 +42,7 @@ abstract class BaseImporter {
             if (importers.printables) returnValue.add(ImportSource.Printables)
             if (importers.sketchfab != null) returnValue.add(ImportSource.Sketchfab)
             if (importers.thingiverse != null) returnValue.add(ImportSource.Thingiverse)
+            if (importers.makerworld) returnValue.add(ImportSource.MakerWorld)
 
             return returnValue
         }
@@ -47,6 +51,7 @@ abstract class BaseImporter {
             return when (importer) {
                 ImportSource.Cults3D -> Cults3DImporter()
                 ImportSource.Instructables -> InstructablesImporter()
+                ImportSource.MakerWorld -> MakerWorldImporter()
                 ImportSource.MyMiniFactory -> MyMiniFactoryImporter()
                 ImportSource.Printables -> PrintablesImporter()
                 ImportSource.Sketchfab -> SketchfabImporter()
@@ -73,6 +78,24 @@ abstract class BaseImporter {
                 ModelFile(-1, storage.storageConfig.name, userId, modelId, type, filename, position, size),
             )
         }
+
+        // Must verify before that it is a zip file!
+        fun unzipDownload(downloadUrl: String, userId: Long, modelId: Long) {
+            val body = Fuel.get(downloadUrl).response().second
+            val size = body.data.size.toLong()
+
+            val zipIS = ZipInputStream(body.data.inputStream())
+            var file = zipIS.nextEntry
+            while (file != null) {
+                var filename = file.fileName
+                println(file)
+                println(filename)
+
+                file = zipIS.nextEntry
+            }
+        }
+
+
     }
 
     abstract fun import(userId: Long, args: Map<String, String>): Long

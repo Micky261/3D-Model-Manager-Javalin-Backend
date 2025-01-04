@@ -1,6 +1,7 @@
 package data.dao
 
 import data.bean.UserSetting
+import data.dto.UserSettingKey
 import data.dto.UserSettingsType
 import org.jdbi.v3.sqlobject.customizer.Bind
 import org.jdbi.v3.sqlobject.customizer.BindBean
@@ -19,4 +20,7 @@ interface UserSettingsDao {
     """,
     )
     fun updateSetting(@BindBean setting: UserSetting)
+
+    @SqlQuery("SELECT * FROM user_settings WHERE user_id = :userId AND `key` = :key")
+    fun getSettingByKey(@Bind("userId") userId: Long, @Bind("key") key: UserSettingKey): UserSetting?
 }

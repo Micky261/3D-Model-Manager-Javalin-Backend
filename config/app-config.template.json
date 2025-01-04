@@ -34,6 +34,7 @@
         },
         "printables": true,
         "instructables": false,
+        "makerworld": true,
         "cults3d": {
             "username": "",
             "password": ""

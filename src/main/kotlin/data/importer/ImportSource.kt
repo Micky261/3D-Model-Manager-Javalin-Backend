@@ -4,6 +4,7 @@ package data.importer
 enum class ImportSource {
     Cults3D,
     Instructables,
+    MakerWorld,
     MyMiniFactory,
     Printables,
     Sketchfab,
