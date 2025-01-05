@@ -98,7 +98,7 @@ object FileType {
     }
 
     fun getFileExtension(filename: String): String {
-        return filename.substringAfterLast('.', "")
+        return filename.substringAfterLast('.', "").lowercase()
     }
 
     fun getFilenameWithoutExtension(filename: String): String {
