@@ -94,8 +94,6 @@ abstract class BaseImporter {
                 file = zipIS.nextEntry
             }
         }
-
-
     }
 
     abstract fun import(userId: Long, args: Map<String, String>): Long

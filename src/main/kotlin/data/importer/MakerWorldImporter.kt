@@ -5,8 +5,6 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import com.github.kittinunf.fuel.Fuel
 import core.config.JacksonModule
 import data.bean.Model
-import data.bean.ModelFileType
-import data.bean.ModelTag
 import data.dto.UserSettingKey
 
 class MakerWorldImporter : BaseImporter() {

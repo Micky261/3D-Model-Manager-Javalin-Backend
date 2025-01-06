@@ -9,7 +9,6 @@ import core.config.JacksonModule
 import data.bean.Model
 import data.bean.ModelFileType
 import data.bean.ModelTag
-import data.dto.ServerMessage
 import data.dto.UserSettingKey
 import io.javalin.http.FailedDependencyResponse
 import io.javalin.http.InternalServerErrorResponse
@@ -95,4 +94,3 @@ class Cults3DImporter : BaseImporter() {
         return modelId
     }
 }
-
