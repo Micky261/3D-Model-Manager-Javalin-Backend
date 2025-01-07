@@ -29,11 +29,11 @@ jobs:
     # Configure Gradle for optimal use in GitHub Actions, including caching of downloaded dependencies.
     # See: https://github.com/gradle/actions/blob/main/setup-gradle/README.md
     - name: Setup Gradle
-      uses: gradle/actions/setup-gradle@dbbdc275be76ac10734476cc723d82dfe7ec6eda # v3.4.2
+      uses: gradle/actions/setup-gradle@v4
 
     - name: Make gradlew executable
       run: chmod +x ./gradlew
-      
+
     # Run Detekt
     - name: Run Detekt
       run: ./gradlew detekt
@@ -70,7 +70,7 @@ jobs:
         # List of tags
         tags: 3dmm/backend:latest
         context: .
-          
+
 
     #- name: Build with Gradle Wrapper
     #  run: ./gradlew build
@@ -103,4 +103,4 @@ jobs:
     # Generates and submits a dependency graph, enabling Dependabot Alerts for all project dependencies.
     # See: https://github.com/gradle/actions/blob/main/dependency-submission/README.md
     - name: Generate and submit dependency graph
-      uses: gradle/actions/dependency-submission@dbbdc275be76ac10734476cc723d82dfe7ec6eda # v3.4.2
+      uses: gradle/actions/dependency-submission@v4
