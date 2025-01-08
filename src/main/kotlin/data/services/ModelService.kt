@@ -52,6 +52,16 @@ class ModelService @Inject constructor(
         }
     }
 
+    fun getFavorites(userId: Long): List<ModelFull> {
+        return modelDao.getFavoritesByUser(userId).map { model ->
+            ModelFull.from(
+                model,
+                modelLinkService.get(userId, model.id),
+                modelTagsService.get(userId, model.id).map { it.tag },
+            )
+        }
+    }
+
     fun get(userId: Long, id: Long): ModelFull? {
         val model = modelDao.get(id, userId) ?: return null
 
