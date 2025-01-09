@@ -77,8 +77,14 @@ class FilesController @Inject constructor(
         val userId = ctx.userId()
         val modelId = ctx.modelId()
         val filename = ctx.formParamAsClass<String>("filename").get()
-        val type = ctx.formParamAsClass<ModelFileType>("type").get()
+        val rType = ctx.formParamAsClass<ModelFileType>("type").get()
         val forceOverwrite = ctx.formParamAsClass<Boolean>("force-overwrite").get()
+
+        val type = if (rType == ModelFileType.automatic) {
+            FileType.getModelFileTypeFromFilename(filename) ?: ModelFileType.various
+        } else {
+            rType
+        }
 
         val modelExists = modelFileService.exists(userId, modelId, type, filename)
 
