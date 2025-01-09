@@ -3,12 +3,12 @@ package backend.models
 import com.google.inject.Inject
 import core.javalin.modelId
 import core.javalin.userId
-import data.bean.FileType
 import data.services.ModelFileService
 import io.javalin.http.Context
 import io.javalin.http.NotFoundResponse
 import io.javalin.http.pathParamAsClass
 import io.javalin.http.queryParamAsClass
+import utils.fileResponse
 import utils.thumbnail.ThumbnailFormat
 import utils.thumbnail.ThumbnailService
 
@@ -25,8 +25,7 @@ class ThumbnailController @Inject constructor(
         val file = thumbnailService.getThumbnail(ctx.userId(), modelFile.modelId, format, size, modelFile)
 
         if (file != null) {
-            ctx.contentType(FileType.getMimeTypeFromFilename(modelFile.filename))
-            ctx.result(file)
+            ctx.fileResponse(file, modelFile.filename)
         } else {
             respondWithDefaultThumbnail(ctx, format, size)
         }
@@ -39,9 +38,9 @@ class ThumbnailController @Inject constructor(
         val modelFile = modelFileService.getMainImage(ctx.modelId(), ctx.userId())
         if (modelFile != null) {
             val thumb = thumbnailService.getThumbnail(ctx.userId(), ctx.modelId(), format, size, modelFile)
+
             if (thumb != null) {
-                ctx.contentType(FileType.getMimeTypeFromFilename(modelFile.filename))
-                ctx.result(thumb)
+                ctx.fileResponse(thumb, modelFile.filename)
             } else {
                 respondWithDefaultThumbnail(ctx, format, size)
             }
@@ -58,7 +57,6 @@ class ThumbnailController @Inject constructor(
     }
 
     private fun respondWithDefaultThumbnail(ctx: Context, format: ThumbnailFormat, size: Int) {
-        ctx.contentType(FileType.getMimeType("jpg"))
-        ctx.result(thumbnailService.getDefaultThumbnail(format, size))
+        ctx.fileResponse(thumbnailService.getDefaultThumbnail(format, size), "default.jpg")
     }
 }
