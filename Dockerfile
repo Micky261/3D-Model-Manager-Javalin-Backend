@@ -1,15 +1,6 @@
 ARG VERSION=latest
 FROM eclipse-temurin:17-alpine
 
-# Install last updates
-RUN apt update \
-    && apt upgrade -y \
-    && rm -rf /var/lib/apt/lists/*
-
-RUN apt update \
-    && apt install -y --no-install-recommends ca-certificates p11-kit netbase tzdata git curl \
-	&& rm -rf /var/lib/apt/lists/*
-
 ENV STATS_JAVALIN_PORT=8421
 
 # Copy backend
