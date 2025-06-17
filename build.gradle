@@ -34,10 +34,10 @@ repositories {
 dependencies {
     implementation group: "io.github.cdimascio", name: "dotenv-kotlin", version: "6.5.0"
 
-    implementation group: "io.javalin", name: "javalin-bundle", version: "6.4.0"
-    implementation group: "io.javalin.community.openapi", name: "javalin-openapi-plugin", version: "6.4.0"
-    kapt group: "io.javalin.community.openapi", name: "openapi-annotation-processor", version: "6.4.0"
-    annotationProcessor group: "io.javalin.community.openapi", name: "openapi-annotation-processor", version: "6.4.0"
+    implementation group: "io.javalin", name: "javalin-bundle", version: "6.6.0"
+    implementation group: "io.javalin.community.openapi", name: "javalin-openapi-plugin", version: "6.6.0"
+    kapt group: "io.javalin.community.openapi", name: "openapi-annotation-processor", version: "6.6.0"
+    annotationProcessor group: "io.javalin.community.openapi", name: "openapi-annotation-processor", version: "6.6.0"
 
     def brotliVersion = "1.18.0"
     implementation group: "com.aayushatharva.brotli4j", name: "brotli4j", version: "$brotliVersion"
