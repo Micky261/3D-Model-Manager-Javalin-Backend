@@ -43,14 +43,14 @@ class DatabaseFactory @Inject constructor(
             config.addDataSourceProperty("autoCommit", "false")
             config.addDataSourceProperty("useServerPrepStmts", "true")
             config.addDataSourceProperty("cachePrepStmts", "true")
-            config.addDataSourceProperty("socketTimeout", 5)
-            config.addDataSourceProperty("connectTimeout", 5)
+//            config.addDataSourceProperty("socketTimeout", 5)
+//            config.addDataSourceProperty("connectTimeout", 5)
 
-            config.setMinimumIdle(5)
-            config.setMaximumPoolSize(20)
-            config.setIdleTimeout(600000)
-            config.maxLifetime = 1800000
-            config.connectionTimeout = 10000
+            config.minimumIdle = 5
+            config.maximumPoolSize = 20
+//            config.idleTimeout = 600000
+//            config.maxLifetime = 1800000
+//            config.connectionTimeout = 10000
 
             config
         },
