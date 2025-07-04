@@ -45,10 +45,17 @@ class JavalinFactory @Inject constructor(
                     if (appConfig.config.general.corsAllowedHosts.isEmpty()) {
                         corsConfig.anyHost()
                     } else {
-                        appConfig.config.general.corsAllowedHosts.forEach { host -> corsConfig.allowHost(host) }
-                    }
+                        val c = appConfig.config.general.corsAllowedHosts
 
-                    corsConfig.allowCredentials = true
+                        if (c.isNotEmpty()) {
+                            corsConfig.allowHost(
+                                c.first(),
+                                *c.subList(1, c.size).toTypedArray(),
+                            )
+                        }
+
+                        corsConfig.allowCredentials = true
+                    }
                 }
             }
         }

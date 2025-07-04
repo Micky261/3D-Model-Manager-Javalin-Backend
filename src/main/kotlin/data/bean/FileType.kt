@@ -3,6 +3,7 @@ package data.bean
 object FileType {
     val types = mapOf(
         "3gp" to "video/3gpp",
+        "3mf" to "model/3mf",
         "7z" to "application/x-7z-compressed",
         "avi" to "video/x-msvideo",
         "bmp" to "image/x-ms-bmp",
@@ -64,11 +65,11 @@ object FileType {
     )
 
     val applications = listOf(
+        "pdf" to listOf("pdf"),
         "image" to listOf("png", "tif", "tiff", "jpg", "bmp", "jpeg", "jpe"),
         "video" to listOf("mp4", "mpg", "mpeg", "avi", "webm", "mkv", "mpg4", "mov", "3gp"),
-        "pdf" to listOf("pdf"),
-        "model" to listOf("stl", "obj"),
-        "sliced" to listOf("gcode", "pwmo"),
+        "model" to listOf("stl", "obj", "3mf"),
+        "sliced" to listOf("gcode", "gco", "pwmo", "pwmx"),
     )
 
     val modelFileType = listOf(
@@ -76,10 +77,10 @@ object FileType {
             "png", "tif", "tiff", "jpg", "bmp", "jpeg", "jpe", "mp4", "mpg",
             "mpeg", "avi", "webm", "mkv", "mpg4", "mov", "3gp",
         ),
-        ModelFileType.diagram to listOf("eps"),
-        ModelFileType.document to listOf("pdf"),
-        ModelFileType.model to listOf("stl", "obj"),
-        ModelFileType.sliced to listOf("gcode", "pwmo"),
+        ModelFileType.diagram to listOf("eps", "svg", "odg"),
+        ModelFileType.document to listOf("pdf", "txt", "docx", "xlsx", "doc", "xls", "ods", "odt"),
+        ModelFileType.model to listOf("stl", "obj", "3mf"),
+        ModelFileType.sliced to listOf("gcode", "gco", "pwmo", "pwmx"),
     )
 
     @Suppress("ConstPropertyName")
@@ -120,8 +121,6 @@ object FileType {
     }
 
     fun getModelFileType(extension: String): ModelFileType? {
-        modelFileType.forEach { (key, value) -> if (value.contains(extension)) return key }
-
-        return null
+        return modelFileType.firstOrNull { (_, value) -> value.contains(extension) }?.first
     }
 }

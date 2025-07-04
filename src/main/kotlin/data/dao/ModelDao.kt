@@ -9,6 +9,7 @@ import org.jdbi.v3.sqlobject.statement.GetGeneratedKeys
 import org.jdbi.v3.sqlobject.statement.SqlQuery
 import org.jdbi.v3.sqlobject.statement.SqlUpdate
 
+@Suppress("ComplexInterface")
 interface ModelDao {
     @SqlUpdate(
         """        
@@ -42,6 +43,13 @@ interface ModelDao {
         @Bind("userId") userId: Long,
         @Bind("count") count: Int,
     ): List<Model>
+
+    @SqlQuery(
+        """
+            SELECT * FROM models WHERE user_id = :userId AND favorite = 1
+        """,
+    )
+    fun getFavoritesByUser(@Bind("userId") userId: Long): List<Model>
 
     @SqlQuery(
         """

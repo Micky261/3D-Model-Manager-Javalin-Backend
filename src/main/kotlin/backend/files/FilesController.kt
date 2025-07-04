@@ -16,6 +16,7 @@ import io.javalin.http.formParamAsClass
 import io.javalin.http.pathParamAsClass
 import storage.Storage
 import utils.Chunking
+import utils.fileResponse
 import utils.thumbnail.ThumbnailGenerator
 import java.io.File
 
@@ -48,37 +49,44 @@ class FilesController @Inject constructor(
     fun downloadZipFile(ctx: Context) {
         val type = ctx.pathParamAsClass<ModelFileType>("type").get()
 
-        ctx.contentType("application/zip")
-        ctx.result(modelFileService.getZipFile(ctx.modelId(), ctx.userId(), type) ?: throw NotFoundResponse())
+        ctx.fileResponse(
+            modelFileService.getZipFile(ctx.modelId(), ctx.userId(), type) ?: throw NotFoundResponse(),
+            "download.zip",
+        )
     }
 
     fun getMainImage(ctx: Context) {
-        val file = modelFileService.getMainImageFile(ctx.modelId(), ctx.userId())
+        val fileData = modelFileService.getMainImage(ctx.modelId(), ctx.userId())
+        val file = modelFileService.getFile(ctx.modelId(), fileData?.id ?: throw NotFoundResponse())
 
         if (file != null) {
-            ctx.contentType(file.mimeType)
-            ctx.result(file.file)
+            ctx.fileResponse(file.file, fileData.filename)
         } else {
-            ctx.contentType(FileType.getMimeType("jpg"))
-            ctx.result(modelFileService.getDefaultImageFile())
+            ctx.fileResponse(modelFileService.getDefaultImageFile(), "default.jpg")
         }
     }
 
     fun getFile(ctx: Context) {
         val fileId = ctx.pathParamAsClass<Long>("fileId").get()
 
+        val fileData = modelFileService.getModelFile(ctx.userId(), fileId) ?: throw NotFoundResponse()
         val file = modelFileService.getFile(ctx.userId(), fileId) ?: throw NotFoundResponse()
 
-        ctx.contentType(file.mimeType)
-        ctx.result(file.file)
+        ctx.fileResponse(file.file, fileData.filename)
     }
 
     fun saveFile(ctx: Context) {
         val userId = ctx.userId()
         val modelId = ctx.modelId()
         val filename = ctx.formParamAsClass<String>("filename").get()
-        val type = ctx.formParamAsClass<ModelFileType>("type").get()
+        val rType = ctx.formParamAsClass<ModelFileType>("type").get()
         val forceOverwrite = ctx.formParamAsClass<Boolean>("force-overwrite").get()
+
+        val type = if (rType == ModelFileType.automatic) {
+            FileType.getModelFileTypeFromFilename(filename) ?: ModelFileType.various
+        } else {
+            rType
+        }
 
         val modelExists = modelFileService.exists(userId, modelId, type, filename)
 

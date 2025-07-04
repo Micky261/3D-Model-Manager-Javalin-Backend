@@ -16,6 +16,7 @@ object ModelsModule : ControllerModule() {
                 get("with-tags", controller::getAllModelsWithTags, JavalinRole.Authorized)
                 get("random/{num}", controller::getRandomModels, JavalinRole.Authorized)
                 get("newest/{num}", controller::getNewestModels, JavalinRole.Authorized)
+                get("favorites", controller::getFavorites, JavalinRole.Authorized)
             }
         }
 

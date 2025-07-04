@@ -54,6 +54,8 @@ class ThingiverseImporter : BaseImporter() {
 //            val name = if (name)
 
         JacksonModule.mapper.readValue<JsonNode>(imageLinksResponse.get()).forEachIndexed { index, fileDownloadLink ->
+            val filename = fileDownloadLink.get("name").asText()
+
             fileDownloadLink.get("sizes")
                 .first { it.get("type").asText() == "display" && it.get("size").asText() == "large" }
                 .also { image ->
@@ -62,7 +64,7 @@ class ThingiverseImporter : BaseImporter() {
                         userId,
                         modelId,
                         ModelFileType.image,
-                        image.get("url").textValue().split("/").last(),
+                        filename,
                         index.toLong() + 1,
                     )
                 }

@@ -8,5 +8,6 @@ enum class ModelFileType {
     document,
     sliced,
     various,
-    all,
+    automatic, // Special type for upload
+    all, // Special type for zip download
 }

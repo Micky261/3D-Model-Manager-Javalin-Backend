@@ -9,16 +9,21 @@ import data.bean.Model
 import data.bean.ModelFileType
 import data.bean.ModelTag
 import io.javalin.http.BadRequestResponse
+import utils.ua
 
 class PrintablesImporter : BaseImporter() {
     private val modelBaseUrl = "https://www.printables.com/model/"
     private val mediaUrl = "https://media.printables.com/"
     private val graphqlUrl = "https://api.printables.com/graphql/"
-    // private val filesUrl = "https://files.printables.com/"
+    private val filesUrl = "https://files.printables.com/"
 
     private val profileQuery: String =
         """
-            {"operationName": "PrintProfile","variables": {"id": "%d"},"query": "query PrintProfile(${"$"}id: ID!) { print(id: ${"$"}id) { ...PrintDetailFragment __typename } } fragment PrintDetailFragment on PrintType { id name user { publicUsername __typename } description category { id name path { id name description __typename } __typename } modified firstPublish datePublished dateCreatedThingiverse summary pdfFilePath images { ...ImageSimpleFragment __typename } tags { name id __typename } thingiverseLink license { id name abbreviation disallowRemixing __typename } gcodes { id name filePath fileSize filePreviewPath __typename } stls { id name filePath fileSize filePreviewPath __typename } slas { id name filePath fileSize filePreviewPath __typename } __typename } fragment ImageSimpleFragment on PrintImageType { id filePath rotation __typename } "}
+            {"operationName": "PrintProfile","variables": {"id": "%d"},"query": "query PrintProfile(${"$"}id: ID!) { print(id: ${"$"}id) { ...PrintDetailFragment __typename } } fragment PrintDetailFragment on PrintType { id name user { publicUsername __typename } description category { id name path { id name description __typename } __typename } modified firstPublish datePublished dateCreatedThingiverse summary pdfFilePath images { ...ImageSimpleFragment __typename } tags { name id __typename } thingiverseLink license { id name abbreviation disallowRemixing __typename } gcodes { id name fileSize filePreviewPath __typename } stls { id name fileSize filePreviewPath __typename } slas { id name fileSize filePreviewPath __typename } __typename } fragment ImageSimpleFragment on PrintImageType { id filePath rotation __typename } "}
+        """.trimIndent()
+    private val downloadQuery: String =
+        """
+            {"operationName": "GetDownloadLink","query": "mutation GetDownloadLink(${"$"}id: ID!, ${"$"}modelId: ID!, ${"$"}fileType: DownloadFileTypeEnum!, ${"$"}source: DownloadSourceEnum!) {\n  getDownloadLink(\n    id: ${"$"}id\n    printId: ${"$"}modelId\n    fileType: ${"$"}fileType\n    source: ${"$"}source\n  ) {\n    ok\n    errors {\n      ...Error\n      __typename\n    }\n    output {\n      link\n      count\n      ttl\n      __typename\n    }\n    __typename\n  }\n}\nfragment Error on ErrorType {\n  field\n  messages\n  __typename\n}","variables": {"fileType": "%s","id": "%d","modelId": "%d","source": "model_detail"}}
         """.trimIndent()
 
     override fun import(userId: Long, args: Map<String, String>): Long {
@@ -26,7 +31,7 @@ class PrintablesImporter : BaseImporter() {
 
         val profileQuery = profileQuery.format(id)
 
-        val (_, _, responseMetadata) = Fuel.post(graphqlUrl).jsonBody(profileQuery).responseString()
+        val (_, _, responseMetadata) = Fuel.post(graphqlUrl).jsonBody(profileQuery).ua().responseString()
         val metadata: JsonNode = JacksonModule.mapper.readValue<JsonNode>(responseMetadata.get())
             .get("data").get("print")
 
@@ -53,6 +58,15 @@ class PrintablesImporter : BaseImporter() {
             this.modelTagsService.insert(modelTag)
         }
 
+        storeFile(
+            filesUrl + metadata.get("pdfFilePath").asText(),
+            userId,
+            modelId,
+            ModelFileType.document,
+            "printables.pdf",
+            1,
+        )
+
         metadata.get("images").forEachIndexed { index, imageFile ->
             val imageFilePathString = imageFile.get("filePath").asText()
             storeFile(
@@ -66,37 +80,46 @@ class PrintablesImporter : BaseImporter() {
         }
 
         var slicedCounter = 1L
-        metadata.get("gcodes").forEach { gcodeFile ->
+        metadata.get("gcodes").forEach { file ->
             storeFile(
-                mediaUrl + gcodeFile.get("filePath").asText(),
+                getDownloadUrl("gcode", file.get("id").asLong(), id), // mediaUrl + file.get("filePath").asText(),
                 userId,
                 modelId,
                 ModelFileType.sliced,
-                gcodeFile.get("name").asText(),
-                slicedCounter++,
-            )
-        }
-        metadata.get("slas").forEach { slaFile ->
-            storeFile(
-                mediaUrl + slaFile.get("filePath").asText(),
-                userId,
-                modelId,
-                ModelFileType.sliced,
-                slaFile.get("name").asText(),
+                file.get("name").asText(),
                 slicedCounter++,
             )
         }
 
-        metadata.get("stls").forEachIndexed { index, stlFile ->
+        metadata.get("slas").forEach { file ->
             storeFile(
-                mediaUrl + stlFile.get("filePath").asText(),
+                getDownloadUrl("sla", file.get("id").asLong(), id), //   mediaUrl + file.get("filePath").asText(),
+                userId,
+                modelId,
+                ModelFileType.sliced,
+                file.get("name").asText(),
+                slicedCounter++,
+            )
+        }
+
+        metadata.get("stls").forEachIndexed { index, file ->
+            storeFile(
+                getDownloadUrl("stl", file.get("id").asLong(), id), //  mediaUrl + file.get("filePath").asText(),
                 userId,
                 modelId,
                 ModelFileType.model,
-                stlFile.get("name").asText(),
+                file.get("name").asText(),
                 index.toLong() + 1,
             )
         }
         return modelId
+    }
+
+    private fun getDownloadUrl(type: String, fileId: Long, modelId: Long): String {
+        val downloadQuery = downloadQuery.format(type, fileId, modelId)
+
+        val (_, _, responseMetadata) = Fuel.post(graphqlUrl).jsonBody(downloadQuery).ua().responseString()
+        return JacksonModule.mapper.readValue<JsonNode>(responseMetadata.get())
+            .get("data").get("getDownloadLink").get("output").get("link").asText()
     }
 }

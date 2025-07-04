@@ -44,10 +44,6 @@ class ModelFileService @Inject constructor(
         return getFile(modelFilesDao.getFileByUser(userId, fileId) ?: return null)
     }
 
-    fun getMainImageFile(modelId: Long, userId: Long): FileWithMimeType? {
-        return getFile(getMainImage(modelId, userId) ?: return null)
-    }
-
     fun getMainImage(modelId: Long, userId: Long): ModelFile? {
         return modelFilesDao.getMainImage(modelId, userId)
     }

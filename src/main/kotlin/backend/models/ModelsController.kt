@@ -24,4 +24,8 @@ class ModelsController @Inject constructor(
     fun getNewestModels(ctx: Context) {
         ctx.json(modelService.getNewest(ctx.userId(), ctx.pathParamAsClass<Int>("num").get()))
     }
+
+    fun getFavorites(ctx: Context) {
+        ctx.json(modelService.getFavorites(ctx.userId()))
+    }
 }

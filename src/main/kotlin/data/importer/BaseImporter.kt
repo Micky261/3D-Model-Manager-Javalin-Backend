@@ -27,6 +27,8 @@ abstract class BaseImporter {
         val config = injector.getInstance<AppConfig>()
         private val modelFileService = injector.getInstance<ModelFileService>()
 
+        const val USER_AGENT = "3DMM-bot/1.0"
+
         fun isEnabled(importer: ImportSource): Boolean {
             return getEnabledImporters().contains(importer)
         }
