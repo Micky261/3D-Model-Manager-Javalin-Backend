@@ -25,11 +25,13 @@ class ImporterController @Inject constructor(
             val modelId = importer.import(ctx.userId(), params)
             ctx.json(modelService.get(ctx.userId(), modelId) ?: throw NotFoundResponse())
         } catch (e: FailedDependencyResponse) {
+            // TODO: Translations in frontend need grammar check, Translation keys should match standard
             ServerMessage("MISSING_SESSION_ID", "Cults SessionId is not set").send(ctx, 424)
         } catch (e: InternalServerErrorResponse) {
             ServerMessage("ORDER_FAILED", "Order request to Cults3d failed").send(ctx, 500)
-        } catch (e: Exception) {
-            ServerMessage("CONTACT_ADMIN", "Contact admin").send(ctx, 500)
+//        } catch (e: Exception) {
+//            // TODO: Replace generic error
+//            ServerMessage("CONTACT_ADMIN", "Contact admin").send(ctx, 500)
         }
     }
 

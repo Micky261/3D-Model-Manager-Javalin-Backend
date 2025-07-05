@@ -100,4 +100,23 @@ class ModelService @Inject constructor(
     fun search(userId: Long, searchTerm: String, searchFields: Set<String>): List<Model> {
         return modelDaoClass.search(userId, searchFields.intersect(Model.searchableFields), searchTerm)
     }
+
+    /**
+     * Only for INTERNAL USE as it changes importedDescription, never expose it to API
+     * Adds two linebreaks between description and appended part
+     */
+    fun appendDescription(userId: Long, id: Long, appendedDescription: String) {
+        val model = modelDao.get(id, userId)!!
+
+        val updatedModel = if (model.importedDescription != null) {
+            model.copy(
+                description = model.description + "\n\n" + appendedDescription,
+                importedDescription = model.importedDescription + "\n\n" + appendedDescription,
+            )
+        } else {
+            model.copy(description = model.description + "\n\n" + appendedDescription)
+        }
+
+        modelDao.dangerousUpdate(updatedModel)
+    }
 }

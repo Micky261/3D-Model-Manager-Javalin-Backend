@@ -76,6 +76,19 @@ interface ModelDao {
         @BindBean model: Model,
     )
 
+    @SqlUpdate(
+        """
+            UPDATE models
+            SET name = :name, description = :description, favorite = :favorite, author = :author, notes = :notes, licence = :licence, 
+            imported_name = :importedName, imported_description = :importedDescription, 
+            imported_author = :importedAuthor, imported_licence = :importedLicence, import_source = :importSource
+            WHERE id = :id AND user_id = :userId
+        """,
+    )
+    fun dangerousUpdate(
+        @BindBean model: Model,
+    )
+
     @SqlUpdate("DELETE FROM models WHERE id = :id AND user_id = :userId")
     fun delete(@Bind("id") id: Long, @Bind("userId") userId: Long)
 

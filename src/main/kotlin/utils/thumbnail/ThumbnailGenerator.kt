@@ -7,6 +7,7 @@ import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import javax.imageio.ImageIO
+import kotlin.math.roundToInt
 
 class ThumbnailGenerator(
     val userId: Long,
@@ -39,7 +40,7 @@ class ThumbnailGenerator(
             resizeImage(
                 img,
                 targetHeight = height,
-                targetWidth = (img.width.toDouble() * (height.toDouble() / img.height.toDouble())).toInt(),
+                targetWidth = (img.width.toDouble() * (height.toDouble() / img.height.toDouble())).roundToInt(),
             )
         } else {
             val storage = Storage.getDefaultStorage()
@@ -77,14 +78,14 @@ class ThumbnailGenerator(
     @Suppress("DuplicatedCode")
     private fun quadraticThumb(o: BufferedImage, targetDimension: Int) {
         val quadratic = if (o.width > o.height) {
-            val targetWidth = (o.width.toDouble() * (targetDimension.toDouble() / o.height.toDouble())).toInt()
+            val targetWidth = (o.width.toDouble() * (targetDimension.toDouble() / o.height.toDouble())).roundToInt()
             val resultingImage = o.getScaledInstance(targetWidth, targetDimension, Image.SCALE_SMOOTH)
             val outputImage = BufferedImage(targetWidth, targetDimension, BufferedImage.TYPE_INT_RGB)
             outputImage.graphics.drawImage(resultingImage, 0, 0, null)
 
             outputImage.getSubimage((outputImage.width - targetDimension) / 2, 0, targetDimension, targetDimension)
         } else {
-            val targetHeight = (o.height.toDouble() * (targetDimension.toDouble() / o.width.toDouble())).toInt()
+            val targetHeight = (o.height.toDouble() * (targetDimension.toDouble() / o.width.toDouble())).roundToInt()
             val resultingImage = o.getScaledInstance(targetDimension, targetHeight, Image.SCALE_SMOOTH)
             val outputImage = BufferedImage(targetDimension, targetHeight, BufferedImage.TYPE_INT_RGB)
             outputImage.graphics.drawImage(resultingImage, 0, 0, null)

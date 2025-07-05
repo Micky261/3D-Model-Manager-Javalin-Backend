@@ -1,5 +1,6 @@
 package data.importer
 
+import com.fasterxml.jackson.databind.JsonNode
 import com.github.kittinunf.fuel.Fuel
 import com.google.inject.Guice
 import com.google.inject.Injector
@@ -15,6 +16,7 @@ import dev.misfitlabs.kotlinguice4.getInstance
 import io.github.furstenheim.CopyDown
 import net.lingala.zip4j.io.inputstream.ZipInputStream
 import storage.Storage
+import java.io.ByteArrayInputStream
 
 abstract class BaseImporter {
     protected val modelService = injector.getInstance<ModelService>()
@@ -40,11 +42,11 @@ abstract class BaseImporter {
 
             if (importers.cults3d != null) returnValue.add(ImportSource.Cults3D)
             if (importers.instructables) returnValue.add(ImportSource.Instructables)
+            if (importers.makerworld) returnValue.add(ImportSource.MakerWorld)
             if (importers.myminifactory != null) returnValue.add(ImportSource.MyMiniFactory)
             if (importers.printables) returnValue.add(ImportSource.Printables)
             if (importers.sketchfab != null) returnValue.add(ImportSource.Sketchfab)
             if (importers.thingiverse != null) returnValue.add(ImportSource.Thingiverse)
-            if (importers.makerworld) returnValue.add(ImportSource.MakerWorld)
 
             return returnValue
         }
@@ -81,6 +83,25 @@ abstract class BaseImporter {
             )
         }
 
+        fun storeData(
+            data: JsonNode,
+            userId: Long,
+            modelId: Long,
+            type: ModelFileType,
+            filename: String,
+            position: Long,
+        ) {
+            val data = ByteArrayInputStream(data.toPrettyString().toByteArray())
+            val size = data.available().toLong()
+
+            val storage = Storage.getRandomStorageClass(size)
+            val targetFilePath = storage.getUserFileTypePath(userId, modelId, type)
+            storage.uploadFile(data, targetFilePath, filename)
+            modelFileService.insertModelFile(
+                ModelFile(-1, storage.storageConfig.name, userId, modelId, type, filename, position, size),
+            )
+        }
+
         // Must verify before that it is a zip file!
         fun unzipDownload(downloadUrl: String, userId: Long, modelId: Long) {
             val body = Fuel.get(downloadUrl).response().second
@@ -89,7 +110,7 @@ abstract class BaseImporter {
             val zipIS = ZipInputStream(body.data.inputStream())
             var file = zipIS.nextEntry
             while (file != null) {
-                var filename = file.fileName
+                val filename = file.fileName
                 println(file)
                 println(filename)
 
