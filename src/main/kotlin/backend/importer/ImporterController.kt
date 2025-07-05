@@ -26,8 +26,11 @@ class ImporterController @Inject constructor(
             ctx.json(modelService.get(ctx.userId(), modelId) ?: throw NotFoundResponse())
         } catch (e: FailedDependencyResponse) {
             // TODO: Translations in frontend need grammar check, Translation keys should match standard
+            // TODO: Define own Exceptions as its used multiple times
             ServerMessage("MISSING_SESSION_ID", "Cults SessionId is not set").send(ctx, 424)
         } catch (e: InternalServerErrorResponse) {
+            // TODO: Translations in frontend need grammar check, Translation keys should match standard
+            // TODO: Define own Exceptions as its used multiple times
             ServerMessage("ORDER_FAILED", "Order request to Cults3d failed").send(ctx, 500)
 //        } catch (e: Exception) {
 //            // TODO: Replace generic error

@@ -9,57 +9,60 @@ import core.config.JacksonModule
 import data.bean.Model
 import data.bean.ModelFileType
 import data.bean.ModelTag
-import data.dto.UserSettingKey
 import io.javalin.http.FailedDependencyResponse
 import io.javalin.http.InternalServerErrorResponse
+import utils.getFilenameWithExtensionFromUrl
+import utils.getText
 
 class Cults3DImporter : BaseImporter() {
     private val graphqlUrl = "https://cults3d.com/graphql"
     private val orderUrl = "https://cults3d.com/en/free_orders?creation_slug="
     private val objectQuery =
-        "{\"query\":\"{ creation(slug: \\\"%s\\\") { name(locale: EN) description(locale: EN) creator { nick } " +
+        "{\"query\":\"{ creation(slug: \\\"%s\\\") { name(locale: EN) description(locale: EN) details(locale: EN) creator { nick } " +
             "license { name(locale: EN) } tags(locale: EN) url(locale: EN) illustrations { imageUrl } " +
             "blueprints { imageUrl fileUrl fileExtension } } } \",\"variables\":null}"
 
-    private val ordersQuery = """
-        { myself { ordersBatch (limit: 100, offset: 0) { results { id lines { downloadUrl }}}}}
-    """.trimIndent()
+    private val ordersQuery =
+        "{\"query\":\"{ myself { ordersBatch(sort: BY_CREATION, direction: DESC, limit: 100, offset: %s)" +
+            " { results { lines { downloadUrl creation { slug } } } } } } \",\"variables\":null}"
+
 
     override fun import(userId: Long, args: Map<String, String>): Long {
-        val id = args["id"]
-        val username = config.config.importer.cults3d?.username ?: ""
-        val password = config.config.importer.cults3d?.password ?: ""
+        val slug = args["id"]!!
 
-        val profileQuery = objectQuery.format(id)
+        // Necessary prechecks
+        val username = config.config.importer.cults3d?.username
+            ?: throw FailedDependencyResponse("Cults3D Login data not provided in settings")
+        val password = config.config.importer.cults3d.password
+        // Only necessary for ordering process, see below
+//        if (userSettingsService.getSetting(userId, UserSettingKey.Cults3dSessionId) == null) {
+//            throw FailedDependencyResponse("Cults3dSessionId is not set")
+//        }
+        val orderLine = findOrder(username, password, slug)
+        println(orderLine)
 
-        val (_, _, responseMetadata) = Fuel.post(graphqlUrl).jsonBody(profileQuery).authentication()
-            .basic(username, password).responseString()
+
+        // Get metadata of model
+        val profileQuery = objectQuery.format(slug)
+        val (_, _, responseMetadata) = Fuel.post(graphqlUrl).jsonBody(profileQuery)
+            .authentication().basic(username, password).responseString()
         val metadata = JacksonModule.mapper.readValue<JsonNode>(responseMetadata.get()).get("data").get("creation")
 
-        if (userSettingsService.getSetting(userId, UserSettingKey.Cults3dSessionId) == null) {
-            throw FailedDependencyResponse("Cults3dSessionId is not set")
-        }
-        val sessionIdCookie = "_sessionId=" + userSettingsService.getSetting(userId, UserSettingKey.Cults3dSessionId)
-        val (_, response, result) = Fuel.post(orderUrl + id).header("Cookie", sessionIdCookie).responseString()
-
-        if (response.statusCode !in 200..299) {
-            throw InternalServerErrorResponse("order request to Cults3d failed")
-        }
-
+        // Process metadata
         val model = Model(
             -1,
             userId = userId,
-            name = metadata.get("name").asText(),
-            importedName = metadata.get("name").asText(),
-            description = converter.convert(metadata.get("description").asText()),
-            importedDescription = converter.convert(metadata.get("description").asText()),
+            name = metadata.getText("name"),
+            importedName = metadata.getText("name"),
+            description = printDescription(metadata),
+            importedDescription = printDescription(metadata),
             notes = "",
             favorite = false,
-            author = metadata.get("creator")?.get("nick")!!.asText(),
-            importedAuthor = metadata.get("creator")?.get("nick")!!.asText(),
-            licence = metadata.get("license").get("name").asText(),
-            importedLicence = metadata.get("license").get("name").asText(),
-            importSource = metadata.get("url").asText(),
+            author = metadata.get("creator").getText("nick"),
+            importedAuthor = metadata.get("creator").getText("nick"),
+            licence = metadata.get("license").getText("name"),
+            importedLicence = metadata.get("license").getText("name"),
+            importSource = metadata.getText("url"),
         )
         val modelId = this.modelService.insert(model)
 
@@ -71,26 +74,78 @@ class Cults3DImporter : BaseImporter() {
         var imageCounter = 1L
         metadata.get("illustrations").forEach { illustration ->
             storeFile(
-                illustration.get("imageUrl").asText(),
+                illustration.getText("imageUrl"),
                 userId,
                 modelId,
                 ModelFileType.image,
-                illustration.get("imageUrl").asText().split("/").last(),
+                illustration.getText("imageUrl").split("/").last(),
                 imageCounter++,
             )
         }
 
         metadata.get("blueprints").forEach { blueprint ->
             storeFile(
-                blueprint.get("imageUrl").asText(),
+                blueprint.getText("imageUrl"),
                 userId,
                 modelId,
                 ModelFileType.image,
-                blueprint.get("imageUrl").asText().split("/").last() + ".png",
+                blueprint.getText("imageUrl").getFilenameWithExtensionFromUrl(),
                 imageCounter++,
             )
         }
 
+        // Not possible due to CSRF token
+//        // Start an ordering process to gain model files
+//        val (_, response, result) = Fuel.post(orderUrl + slug)
+//            .header(
+//                "Cookie",
+//                "_session_id=" + userSettingsService.getSetting(userId, UserSettingKey.Cults3dSessionId)
+//            )
+//            .responseString()
+//
+//        if (response.statusCode !in 200..299) {
+//            throw InternalServerErrorResponse("Could not order model: $slug")
+//        }
+
+//        println(response)
+
         return modelId
+    }
+
+    private fun findOrder(username: String, password: String, slug: String): JsonNode {
+        var orderOffset = 0 // Increase by 100
+
+        while (true) {
+            val orderQuery = ordersQuery.format(orderOffset)
+            val (_, _, response) = Fuel.post(graphqlUrl).jsonBody(orderQuery)
+                .authentication().basic(username, password).responseString()
+            val metadata =
+                JacksonModule.mapper.readValue<JsonNode>(response.get()).get("data").get("myself").get("ordersBatch")
+
+            if (metadata.get("results").isEmpty) {
+                throw InternalServerErrorResponse("Could not find order for slug $slug")
+            }
+            val orderLine = metadata.get("results").firstOrNull { line ->
+                line.get("lines").get(0).get("creation").getText("slug") == slug }
+
+            if (orderLine != null) {
+                return orderLine
+            } else {
+                orderOffset += 100
+            }
+        }
+    }
+
+    fun printDescription(metadata: JsonNode): String {
+        return if (metadata.getText("details") != "" && metadata.getText("details") != "-") {
+            """
+            |${converter.convert(metadata.getText("description"))}
+            |
+            |## 3D Printing Settings
+            |${converter.convert(metadata.getText("details"))}
+            """.trimMargin()
+        } else {
+            "${converter.convert(metadata.getText("description"))}"
+        }
     }
 }
