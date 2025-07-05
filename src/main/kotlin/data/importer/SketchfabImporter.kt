@@ -10,6 +10,8 @@ import data.bean.Model
 import data.bean.ModelFileType
 import data.bean.ModelTag
 import utils.authToken
+import utils.getFilenameWithExtensionFromUrl
+import utils.getText
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 class Metadata(
@@ -52,17 +54,17 @@ class SketchfabImporter : BaseImporter() {
         val modelId = this.modelService.insert(model)
 
         metadata.tags.forEach { tag ->
-            val modelTag = ModelTag(userId, modelId, tag.get("name").asText())
+            val modelTag = ModelTag(userId, modelId, tag.getText("name"))
             this.modelTagsService.insert(modelTag)
         }
 
         metadata.thumbnails.get("images").maxByOrNull { it.get("width").intValue() }?.also { image ->
             storeFile(
-                image.get("url").asText(),
+                image.getText("url"),
                 userId,
                 modelId,
                 ModelFileType.image,
-                image.get("url").asText().split("/").last(),
+                image.getText("url").getFilenameWithExtensionFromUrl(),
                 1L,
             )
         }
@@ -74,9 +76,9 @@ class SketchfabImporter : BaseImporter() {
             val downloadLinks: JsonNode = JacksonModule.mapper.readValue<JsonNode>(responseDownloadLink.get())
 
             downloadLinks.forEachIndexed { index, archiveLink ->
-                val filename = archiveLink.get("url").asText().split("/").last().split("?").first()
+                val filename = archiveLink.getText("url").getFilenameWithExtensionFromUrl()
                 storeFile(
-                    archiveLink.get("url").asText(),
+                    archiveLink.getText("url"),
                     userId,
                     modelId,
                     FileType.getModelFileTypeFromFilename(filename) ?: ModelFileType.various,

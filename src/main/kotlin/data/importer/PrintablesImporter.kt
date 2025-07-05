@@ -9,6 +9,7 @@ import data.bean.Model
 import data.bean.ModelFileType
 import data.bean.ModelTag
 import io.javalin.http.BadRequestResponse
+import utils.getText
 import utils.ua
 
 class PrintablesImporter : BaseImporter() {
@@ -38,28 +39,28 @@ class PrintablesImporter : BaseImporter() {
         val model = Model(
             -1,
             userId = userId,
-            name = metadata.get("name").asText(),
-            importedName = metadata.get("name").asText(),
-            description = converter.convert(metadata.get("description").asText()),
-            importedDescription = converter.convert(metadata.get("description").asText()),
+            name = metadata.getText("name"),
+            importedName = metadata.getText("name"),
+            description = converter.convert(metadata.getText("description")),
+            importedDescription = converter.convert(metadata.getText("description")),
             notes = "",
             favorite = false,
-            author = metadata.get("user").get("publicUsername").asText(),
-            importedAuthor = metadata.get("user").get("publicUsername").asText(),
-            licence = metadata.get("license").get("abbreviation").asText(),
-            importedLicence = metadata.get("license").get("abbreviation").asText(),
+            author = metadata.get("user").getText("publicUsername"),
+            importedAuthor = metadata.get("user").getText("publicUsername"),
+            licence = metadata.get("license").getText("abbreviation"),
+            importedLicence = metadata.get("license").getText("abbreviation"),
             importSource = modelBaseUrl + id,
         )
 
         val modelId = this.modelService.insert(model)
 
         metadata.get("tags").forEach { tag ->
-            val modelTag = ModelTag(userId, modelId, tag.get("name").asText())
+            val modelTag = ModelTag(userId, modelId, tag.getText("name"))
             this.modelTagsService.insert(modelTag)
         }
 
         storeFile(
-            filesUrl + metadata.get("pdfFilePath").asText(),
+            filesUrl + metadata.getText("pdfFilePath"),
             userId,
             modelId,
             ModelFileType.document,
@@ -68,7 +69,7 @@ class PrintablesImporter : BaseImporter() {
         )
 
         metadata.get("images").forEachIndexed { index, imageFile ->
-            val imageFilePathString = imageFile.get("filePath").asText()
+            val imageFilePathString = imageFile.getText("filePath")
             storeFile(
                 mediaUrl + imageFilePathString,
                 userId,
@@ -82,33 +83,33 @@ class PrintablesImporter : BaseImporter() {
         var slicedCounter = 1L
         metadata.get("gcodes").forEach { file ->
             storeFile(
-                getDownloadUrl("gcode", file.get("id").asLong(), id), // mediaUrl + file.get("filePath").asText(),
+                getDownloadUrl("gcode", file.get("id").asLong(), id), // mediaUrl + file.getText("filePath"),
                 userId,
                 modelId,
                 ModelFileType.sliced,
-                file.get("name").asText(),
+                file.getText("name"),
                 slicedCounter++,
             )
         }
 
         metadata.get("slas").forEach { file ->
             storeFile(
-                getDownloadUrl("sla", file.get("id").asLong(), id), //   mediaUrl + file.get("filePath").asText(),
+                getDownloadUrl("sla", file.get("id").asLong(), id), //   mediaUrl + file.getText("filePath"),
                 userId,
                 modelId,
                 ModelFileType.sliced,
-                file.get("name").asText(),
+                file.getText("name"),
                 slicedCounter++,
             )
         }
 
         metadata.get("stls").forEachIndexed { index, file ->
             storeFile(
-                getDownloadUrl("stl", file.get("id").asLong(), id), //  mediaUrl + file.get("filePath").asText(),
+                getDownloadUrl("stl", file.get("id").asLong(), id), //  mediaUrl + file.getText("filePath"),
                 userId,
                 modelId,
                 ModelFileType.model,
-                file.get("name").asText(),
+                file.getText("name"),
                 index.toLong() + 1,
             )
         }
@@ -120,6 +121,6 @@ class PrintablesImporter : BaseImporter() {
 
         val (_, _, responseMetadata) = Fuel.post(graphqlUrl).jsonBody(downloadQuery).ua().responseString()
         return JacksonModule.mapper.readValue<JsonNode>(responseMetadata.get())
-            .get("data").get("getDownloadLink").get("output").get("link").asText()
+            .get("data").get("getDownloadLink").get("output").getText("link")
     }
 }

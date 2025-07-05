@@ -9,6 +9,7 @@ import data.bean.ModelFileType
 import data.bean.ModelTag
 import io.javalin.http.BadRequestResponse
 import utils.authToken
+import utils.getText
 
 class MyMiniFactoryImporter : BaseImporter() {
     private val fileUrl = "https://www.myminifactory.com/download/"
@@ -25,17 +26,17 @@ class MyMiniFactoryImporter : BaseImporter() {
         val model = Model(
             -1,
             userId = userId,
-            name = metadata.get("name").asText(),
-            importedName = metadata.get("name").asText(),
-            description = converter.convert(metadata.get("description_html").asText()),
-            importedDescription = converter.convert(metadata.get("description_html").asText()),
+            name = metadata.getText("name"),
+            importedName = metadata.getText("name"),
+            description = converter.convert(metadata.getText("description_html")),
+            importedDescription = converter.convert(metadata.getText("description_html")),
             notes = "",
             favorite = false,
-            author = metadata.get("designer").get("name").asText(),
-            importedAuthor = metadata.get("designer").get("name").asText(),
-            licence = metadata.get("license").asText(),
-            importedLicence = metadata.get("license").asText(),
-            importSource = metadata.get("url").asText(),
+            author = metadata.get("designer").getText("name"),
+            importedAuthor = metadata.get("designer").getText("name"),
+            licence = metadata.getText("license"),
+            importedLicence = metadata.getText("license"),
+            importSource = metadata.getText("url"),
         )
         val modelId = this.modelService.insert(model)
 
@@ -46,18 +47,18 @@ class MyMiniFactoryImporter : BaseImporter() {
 
         metadata.get("images").forEachIndexed { index, imageFile ->
             storeFile(
-                imageFile.get("original").get("url").asText(),
+                imageFile.get("original").getText("url"),
                 userId,
                 modelId,
                 ModelFileType.image,
-                imageFile.get("original").get("url").asText().split("/").last(),
+                imageFile.get("original").getText("url").split("/").last(),
                 index.toLong() + 1,
             )
         }
 
         metadata.get("files").get("items")
             // Map to filenames
-            .map { it.get("filename").asText() }
+            .map { it.getText("filename") }
             // Images are also in the files data -> Ignore
             .filterNot { filename -> filename.split(".").map { it.lowercase() }.equals("JPG") }
             .forEachIndexed { index, filename ->

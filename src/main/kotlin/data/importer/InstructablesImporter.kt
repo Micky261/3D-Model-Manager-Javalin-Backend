@@ -8,6 +8,7 @@ import data.bean.FileType
 import data.bean.Model
 import data.bean.ModelFileType
 import utils.authToken
+import utils.getText
 
 class InstructablesImporter : BaseImporter() {
     private val baseUrl = "https://www.instructables.com/json-api/"
@@ -47,8 +48,8 @@ class InstructablesImporter : BaseImporter() {
 
         metadata.get("files").forEach { filesPerStep ->
             filesPerStep.forEach { file ->
-                val url = file.get("downloadUrl").asText()
-                val filename = file.get("name").asText()
+                val url = file.getText("downloadUrl")
+                val filename = file.getText("name")
                 val modelFileType = FileType.getModelFileTypeFromFilename(filename) ?: ModelFileType.various
 
                 storeFile(
