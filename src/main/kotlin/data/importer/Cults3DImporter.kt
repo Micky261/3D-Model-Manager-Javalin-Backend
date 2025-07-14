@@ -6,26 +6,37 @@ import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.extensions.authentication
 import com.github.kittinunf.fuel.core.extensions.jsonBody
 import core.config.JacksonModule
+import data.bean.FileType
 import data.bean.Model
 import data.bean.ModelFileType
 import data.bean.ModelTag
 import io.javalin.http.FailedDependencyResponse
-import io.javalin.http.InternalServerErrorResponse
 import utils.getFilenameWithExtensionFromUrl
 import utils.getText
 
+/**
+ * This Importer is currently restricted to importing metadata only as order processes and downloads
+ * are not available over the API (at the time of writing).
+ * The only working approach would be forging of CSRF tokens, which is not ethical.
+ * Therefore, this Importer will be restricted until the API is extended.
+ *
+ * Code to check for already made orders, starting the ordering process and downloading the files
+ * is provided below as it was created during testing.
+ * The frontend-side implementation to set the _session_id will be kept but hidden from the user.
+ * The UserSettings key will remain available (although useless).
+ */
 class Cults3DImporter : BaseImporter() {
     private val graphqlUrl = "https://cults3d.com/graphql"
-    private val orderUrl = "https://cults3d.com/en/free_orders?creation_slug="
     private val objectQuery =
-        "{\"query\":\"{ creation(slug: \\\"%s\\\") { name(locale: EN) description(locale: EN) details(locale: EN) creator { nick } " +
+        "{\"query\":\"{ creation(slug: \\\"%s\\\") { name(locale: EN) description(locale: EN) " +
+            "details(locale: EN) creator { nick } " +
             "license { name(locale: EN) } tags(locale: EN) url(locale: EN) illustrations { imageUrl } " +
             "blueprints { imageUrl fileUrl fileExtension } } } \",\"variables\":null}"
 
-    private val ordersQuery =
-        "{\"query\":\"{ myself { ordersBatch(sort: BY_CREATION, direction: DESC, limit: 100, offset: %s)" +
-            " { results { lines { downloadUrl creation { slug } } } } } } \",\"variables\":null}"
-
+//    private val orderUrl = "https://cults3d.com/en/free_orders?creation_slug="
+//    private val ordersQuery =
+//        "{\"query\":\"{ myself { ordersBatch(sort: BY_CREATION, direction: DESC, limit: 100, offset: %s)" +
+//            " { results { lines { downloadUrl creation { slug } } } } } } \",\"variables\":null}"
 
     override fun import(userId: Long, args: Map<String, String>): Long {
         val slug = args["id"]!!
@@ -38,9 +49,9 @@ class Cults3DImporter : BaseImporter() {
 //        if (userSettingsService.getSetting(userId, UserSettingKey.Cults3dSessionId) == null) {
 //            throw FailedDependencyResponse("Cults3dSessionId is not set")
 //        }
-        val orderLine = findOrder(username, password, slug)
-        println(orderLine)
-
+        // Only necessary for auto download, see below
+//        val orderLine = findOrder(username, password, slug)
+//        println(orderLine)
 
         // Get metadata of model
         val profileQuery = objectQuery.format(slug)
@@ -89,52 +100,91 @@ class Cults3DImporter : BaseImporter() {
                 userId,
                 modelId,
                 ModelFileType.image,
-                blueprint.getText("imageUrl").getFilenameWithExtensionFromUrl(),
+                FileType.imagineExtension(blueprint.getText("imageUrl").getFilenameWithExtensionFromUrl(), "png"),
                 imageCounter++,
             )
         }
 
         // Not possible due to CSRF token
-//        // Start an ordering process to gain model files
-//        val (_, response, result) = Fuel.post(orderUrl + slug)
-//            .header(
-//                "Cookie",
-//                "_session_id=" + userSettingsService.getSetting(userId, UserSettingKey.Cults3dSessionId)
-//            )
-//            .responseString()
-//
-//        if (response.statusCode !in 200..299) {
-//            throw InternalServerErrorResponse("Could not order model: $slug")
-//        }
+        /**        // Start an ordering process to gain model files
+         val (_, response, result) = Fuel.post(orderUrl + slug)
+         .header(
+         "Cookie",
+         "_session_id=" + userSettingsService.getSetting(userId, UserSettingKey.Cults3dSessionId)
+         )
+         .responseString()
 
-//        println(response)
+         if (response.statusCode !in 200..299) {
+         throw InternalServerErrorResponse("Could not order model: $slug")
+         }
+
+         println(response) */
+
+        // Not possible due to CSRF token
+        /**        // Handle downloads
+         var fileCounter = 1L
+         orderLine.get("lines").forEach { line ->
+
+         val body = Fuel.get(line.get("downloadUrl").asText())
+         .header(
+         "Cookie",
+         "_session_id=" + userSettingsService.getSetting(userId, UserSettingKey.Cults3dSessionId)
+         )
+         .response().second
+         val size = body.data.size.toLong()
+         println("${body.contentLength} ${body.data.size} ${body.data[1]}")
+
+         println(body)
+         println(body.headers)
+         println(body.headers["Content-Disposition"])
+         println(body.headers["Content-Disposition"].toString())
+         val finalFilename =
+         body.headers["Content-Disposition"].toString().split(";")[1].split("=")[1].replace("\"", "")
+
+         println(finalFilename)
+
+         println("-----------IMPORTER---------------")
+
+         storeFile(
+         line.get("downloadUrl").asText(),
+         userId,
+         modelId,
+         ModelFileType.model,
+         line.get("creation").getText("slug"),
+         fileCounter++,
+         true
+         )
+         }*/
 
         return modelId
     }
 
-    private fun findOrder(username: String, password: String, slug: String): JsonNode {
-        var orderOffset = 0 // Increase by 100
+    // Only necessary for auto download, see below
+    /**    private fun findOrder(username: String, password: String, slug: String): JsonNode {
+     var orderOffset = 0 // Increase by 100
 
-        while (true) {
-            val orderQuery = ordersQuery.format(orderOffset)
-            val (_, _, response) = Fuel.post(graphqlUrl).jsonBody(orderQuery)
-                .authentication().basic(username, password).responseString()
-            val metadata =
-                JacksonModule.mapper.readValue<JsonNode>(response.get()).get("data").get("myself").get("ordersBatch")
+     while (true) {
+     val orderQuery = ordersQuery.format(orderOffset)
+     val (_, _, response) = Fuel.post(graphqlUrl).jsonBody(orderQuery)
+     .authentication().basic(username, password).responseString()
+     val metadata = JacksonModule.mapper.readValue<JsonNode>(response.get())
+     .get("data").get("myself").get("ordersBatch")
 
-            if (metadata.get("results").isEmpty) {
-                throw InternalServerErrorResponse("Could not find order for slug $slug")
-            }
-            val orderLine = metadata.get("results").firstOrNull { line ->
-                line.get("lines").get(0).get("creation").getText("slug") == slug }
+     if (metadata.get("results").isEmpty) {
+     throw InternalServerErrorResponse("Could not find order for slug $slug")
+     }
 
-            if (orderLine != null) {
-                return orderLine
-            } else {
-                orderOffset += 100
-            }
-        }
-    }
+     val orderLine = metadata.get("results").firstOrNull { line ->
+     line.get("lines").get(0).get("creation").getText("slug") == slug
+     }
+
+     if (orderLine != null) {
+     return orderLine
+     } else {
+     orderOffset += 100
+     }
+     }
+     }*/
 
     fun printDescription(metadata: JsonNode): String {
         return if (metadata.getText("details") != "" && metadata.getText("details") != "-") {

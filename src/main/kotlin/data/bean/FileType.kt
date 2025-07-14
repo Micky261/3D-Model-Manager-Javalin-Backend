@@ -123,4 +123,13 @@ object FileType {
     fun getModelFileType(extension: String): ModelFileType? {
         return modelFileType.firstOrNull { (_, value) -> value.contains(extension) }?.first
     }
+
+    fun hasExtension(filename: String): Boolean {
+        return filename.contains(".") &&
+            filename.split(".").last().length <= 4
+    }
+
+    fun imagineExtension(filename: String, imaginedExt: String): String {
+        return if (hasExtension(filename)) filename else "$filename.$imaginedExt"
+    }
 }
