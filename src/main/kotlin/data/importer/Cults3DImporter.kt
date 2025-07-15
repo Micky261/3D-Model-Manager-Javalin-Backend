@@ -160,6 +160,7 @@ class Cults3DImporter : BaseImporter() {
     }
 
     // Only necessary for auto download, see below
+
     /**    private fun findOrder(username: String, password: String, slug: String): JsonNode {
      var orderOffset = 0 // Increase by 100
 
@@ -186,16 +187,14 @@ class Cults3DImporter : BaseImporter() {
      }
      }*/
 
-    fun printDescription(metadata: JsonNode): String {
-        return if (metadata.getText("details") != "" && metadata.getText("details") != "-") {
-            """
-            |${converter.convert(metadata.getText("description"))}
-            |
-            |## 3D Printing Settings
-            |${converter.convert(metadata.getText("details"))}
-            """.trimMargin()
-        } else {
-            "${converter.convert(metadata.getText("description"))}"
-        }
+    fun printDescription(metadata: JsonNode): String = if (!listOf("", "-").contains(metadata.getText("details"))) {
+        """
+        |${converter.convert(metadata.getText("description"))}
+        |
+        |## 3D Printing Settings
+        |${converter.convert(metadata.getText("details"))}
+        """.trimMargin()
+    } else {
+        "${converter.convert(metadata.getText("description"))}"
     }
 }

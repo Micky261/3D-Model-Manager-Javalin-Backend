@@ -239,16 +239,14 @@ class MakerWorldImporter : BaseImporter() {
         return counters
     }
 
-    private fun filamentToString(filament: JsonNode): String {
-        return filament.getText("type") + ", " +
-            filament.getText("color") + ", " +
-            filament.getText("usedM") + "m, " +
-            filament.getText("usedG") + "g"
-    }
+    private fun filamentToString(filament: JsonNode): String = filament.getText("type") + ", " +
+        filament.getText("color") + ", " +
+        filament.getText("usedM") + "m, " +
+        filament.getText("usedG") + "g"
 
-    private fun deviceCompatibilityToString(devComp: JsonNode): String {
-        return devComp.getText("devProductName") + " (Nozzle: " + devComp.getText("nozzleDiameter") + ")"
-    }
+    private fun deviceCompatibilityToString(devComp: JsonNode): String = devComp.getText(
+        "devProductName",
+    ) + " (Nozzle: " + devComp.getText("nozzleDiameter") + ")"
 
     private fun plateToString(instanceId: Long, plate: JsonNode): String {
         val plateIdx = plate.getLong("index")

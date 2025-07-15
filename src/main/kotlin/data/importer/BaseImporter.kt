@@ -31,9 +31,7 @@ abstract class BaseImporter {
 
         const val USER_AGENT = "3DMM-bot/1.0"
 
-        fun isEnabled(importer: ImportSource): Boolean {
-            return getEnabledImporters().contains(importer)
-        }
+        fun isEnabled(importer: ImportSource): Boolean = getEnabledImporters().contains(importer)
 
         fun getEnabledImporters(): List<ImportSource> {
             val importers = config.config.importer
@@ -51,16 +49,14 @@ abstract class BaseImporter {
             return returnValue
         }
 
-        fun getImporter(importer: ImportSource): BaseImporter {
-            return when (importer) {
-                ImportSource.Cults3D -> Cults3DImporter()
-                ImportSource.Instructables -> InstructablesImporter()
-                ImportSource.MakerWorld -> MakerWorldImporter()
-                ImportSource.MyMiniFactory -> MyMiniFactoryImporter()
-                ImportSource.Printables -> PrintablesImporter()
-                ImportSource.Sketchfab -> SketchfabImporter()
-                ImportSource.Thingiverse -> ThingiverseImporter()
-            }
+        fun getImporter(importer: ImportSource): BaseImporter = when (importer) {
+            ImportSource.Cults3D -> Cults3DImporter()
+            ImportSource.Instructables -> InstructablesImporter()
+            ImportSource.MakerWorld -> MakerWorldImporter()
+            ImportSource.MyMiniFactory -> MyMiniFactoryImporter()
+            ImportSource.Printables -> PrintablesImporter()
+            ImportSource.Sketchfab -> SketchfabImporter()
+            ImportSource.Thingiverse -> ThingiverseImporter()
         }
 
         fun storeFile(

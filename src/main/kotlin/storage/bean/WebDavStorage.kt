@@ -34,15 +34,13 @@ class WebDavStorage(
         }
     }
 
-    override fun getFile(filepath: String): InputStream {
-        return try {
-            webDavClient.get((storageConfig.url + filepath).toUrl())
-        } catch (e: SardineException) {
-            if (e.statusCode == 404) {
-                InputStream.nullInputStream()
-            } else {
-                throw StorageRequestException(e.statusCode).apply { initCause(e) }
-            }
+    override fun getFile(filepath: String): InputStream = try {
+        webDavClient.get((storageConfig.url + filepath).toUrl())
+    } catch (e: SardineException) {
+        if (e.statusCode == 404) {
+            InputStream.nullInputStream()
+        } else {
+            throw StorageRequestException(e.statusCode).apply { initCause(e) }
         }
     }
 

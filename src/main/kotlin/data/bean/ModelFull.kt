@@ -22,26 +22,24 @@ data class ModelFull(
     val tags: List<String>,
 ) {
     companion object {
-        fun from(model: Model, links: List<ModelLink>, tags: List<String>): ModelFull {
-            return ModelFull(
-                model.id,
-                model.userId,
-                model.name,
-                model.importedName,
-                model.description,
-                model.importedDescription,
-                model.notes,
-                model.favorite,
-                model.author,
-                model.importedAuthor,
-                model.licence,
-                model.importedLicence,
-                model.importSource,
-                model.createdAt,
-                model.updatedAt,
-                links,
-                tags,
-            )
-        }
+        fun from(model: Model, links: List<ModelLink>, tags: List<String>): ModelFull = ModelFull(
+            model.id,
+            model.userId,
+            model.name,
+            model.importedName,
+            model.description,
+            model.importedDescription,
+            model.notes,
+            model.favorite,
+            model.author,
+            model.importedAuthor,
+            model.licence,
+            model.importedLicence,
+            model.importSource,
+            model.createdAt,
+            model.updatedAt,
+            links,
+            tags,
+        )
     }
 }

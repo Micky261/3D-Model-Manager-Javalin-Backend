@@ -31,23 +31,17 @@ object Storage {
         }
     }
 
-    fun getStorageClass(storage: AppConfigStorage): AbstractStorage {
-        return when (storage.storageType) {
-            StorageType.Local -> LocalStorage(storage as AppConfigLocalStorage)
-            StorageType.WebDav -> WebDavStorage(storage as AppConfigWebDavStorage)
-        }
+    fun getStorageClass(storage: AppConfigStorage): AbstractStorage = when (storage.storageType) {
+        StorageType.Local -> LocalStorage(storage as AppConfigLocalStorage)
+        StorageType.WebDav -> WebDavStorage(storage as AppConfigWebDavStorage)
     }
 
     /**
      * Get a Storage implementation by the name of the storage (e.g. from ModelFile table)
      */
-    fun getStorageClassByName(storageName: String): AbstractStorage {
-        return getStorageClass(getStorageByName(storageName))
-    }
+    fun getStorageClassByName(storageName: String): AbstractStorage = getStorageClass(getStorageByName(storageName))
 
-    fun getStorageByName(storageName: String): AppConfigStorage {
-        return config.config.storage.first { it.name == storageName }
-    }
+    fun getStorageByName(storageName: String): AppConfigStorage = config.config.storage.first { it.name == storageName }
 
     fun getDefaultStorage(): AbstractStorage {
         val defaultStorage = config.config.storage.firstOrNull { it.default } ?: throw NoDefaultStorageException()

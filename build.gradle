@@ -2,7 +2,7 @@ plugins {
     id "org.jetbrains.kotlin.jvm" version "2.2.0"
     id "org.jetbrains.kotlin.kapt" version "2.2.0"
 
-    id "org.jlleitschuh.gradle.ktlint" version "12.1.2"
+    id "org.jlleitschuh.gradle.ktlint" version "13.0.0"
     id "io.gitlab.arturbosch.detekt" version "1.23.8"
 
     id "com.gradleup.shadow" version "8.3.5"
@@ -37,7 +37,7 @@ dependencies {
     implementation group: "io.javalin", name: "javalin-bundle", version: "6.7.0"
     implementation group: "io.javalin.community.openapi", name: "javalin-openapi-plugin", version: "6.7.0-1"
     kapt group: "io.javalin.community.openapi", name: "openapi-annotation-processor", version: "6.7.0-1"
-    annotationProcessor group: "io.javalin.community.openapi", name: "openapi-annotation-processor", version: "6.4.0"
+    annotationProcessor group: "io.javalin.community.openapi", name: "openapi-annotation-processor", version: "6.7.0-1"
 
     def brotliVersion = "1.18.0"
     implementation group: "com.aayushatharva.brotli4j", name: "brotli4j", version: "$brotliVersion"
@@ -59,14 +59,14 @@ dependencies {
     implementation group: "org.jdbi", name: "jdbi3-kotlin-sqlobject", version: "3.49.5"
     implementation group: "org.postgresql", name: "postgresql", version: "42.7.7"
     implementation group: "org.mariadb.jdbc", name: "mariadb-java-client", version: "3.5.4"
-    implementation group: "org.flywaydb", name: "flyway-core", version: "11.10.0"
-    implementation group: "org.flywaydb", name: "flyway-mysql", version: "11.10.0"
+    implementation group: "org.flywaydb", name: "flyway-core", version: "11.10.2"
+    implementation group: "org.flywaydb", name: "flyway-mysql", version: "11.10.2"
 
     implementation group: "com.github.kittinunf.fuel", name: "fuel", version: "2.3.1"
     implementation group: "com.github.kittinunf.fuel", name: "fuel-jackson", version: "2.3.1"
     implementation group: "com.github.kittinunf.fuel", name: "fuel-coroutines", version: "2.3.1"
     implementation group: "com.github.lookfirst", name: "sardine", version: "5.13"
-    implementation group: "org.jsoup", name: "jsoup", version: "1.18.3"
+    implementation group: "org.jsoup", name: "jsoup", version: "1.21.1"
 
     implementation group: "com.google.inject", name: "guice", version: "7.0.0"
     implementation group: "dev.misfitlabs.kotlinguice4", name: "kotlin-guice", version: "3.0.0"
@@ -84,7 +84,7 @@ dependencies {
     implementation group: "commons-codec", name: "commons-codec", version: "1.18.0"
     implementation group: "commons-io", name: "commons-io", version: "2.19.0"
     implementation group: "org.apache.commons", name: "commons-compress", version: "1.27.1"
-    implementation group: "org.apache.commons", name: "commons-lang3", version: "3.17.0"
+    implementation group: "org.apache.commons", name: "commons-lang3", version: "3.18.0"
 
     implementation group: "net.lingala.zip4j", name: "zip4j", version: "2.11.5"
 

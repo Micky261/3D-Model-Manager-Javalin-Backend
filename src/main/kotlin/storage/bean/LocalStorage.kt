@@ -34,9 +34,7 @@ class LocalStorage(
         file.close()
     }
 
-    override fun getFile(filepath: String): InputStream {
-        return File(filepath).inputStream()
-    }
+    override fun getFile(filepath: String): InputStream = File(filepath).inputStream()
 
     override fun moveFile(sourceFilePath: String, targetPath: String, targetFileName: String) {
         mkDirs(targetPath)

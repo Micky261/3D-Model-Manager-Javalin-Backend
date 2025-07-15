@@ -8,17 +8,11 @@ import io.javalin.http.NotFoundResponse
 class ModelLinkService @Inject constructor(
     private val modelLinkDao: ModelLinkDao,
 ) {
-    fun get(id: Long): ModelLink {
-        return modelLinkDao.get(id) ?: throw NotFoundResponse()
-    }
+    fun get(id: Long): ModelLink = modelLinkDao.get(id) ?: throw NotFoundResponse()
 
-    fun get(userId: Long, modelId: Long): List<ModelLink> {
-        return modelLinkDao.getAllByModel(modelId, userId)
-    }
+    fun get(userId: Long, modelId: Long): List<ModelLink> = modelLinkDao.getAllByModel(modelId, userId)
 
-    fun insert(modelLink: ModelLink): ModelLink {
-        return get(modelLinkDao.insert(modelLink))
-    }
+    fun insert(modelLink: ModelLink): ModelLink = get(modelLinkDao.insert(modelLink))
 
     fun update(modelLink: ModelLink) {
         modelLinkDao.update(modelLink)

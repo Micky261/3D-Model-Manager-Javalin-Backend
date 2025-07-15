@@ -9,9 +9,8 @@ import java.sql.PreparedStatement
 import java.sql.Types
 
 class MapArgumentFactory : AbstractArgumentFactory<Map<String, String>>(Types.VARCHAR) {
-    override fun build(value: Map<String, String>, config: ConfigRegistry): Argument {
-        return Argument { position: Int, statement: PreparedStatement, _: StatementContext? ->
+    override fun build(value: Map<String, String>, config: ConfigRegistry): Argument =
+        Argument { position: Int, statement: PreparedStatement, _: StatementContext? ->
             statement.setString(position, JacksonModule.mapper.writeValueAsString(value))
         }
-    }
 }

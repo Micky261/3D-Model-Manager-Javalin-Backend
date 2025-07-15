@@ -16,17 +16,11 @@ class ModelTagsService @Inject constructor(
         }
     }
 
-    fun getWithCount(userId: Long): List<ModelTagCount> {
-        return modelTagsDao.getTagWithCount(userId)
-    }
+    fun getWithCount(userId: Long): List<ModelTagCount> = modelTagsDao.getTagWithCount(userId)
 
-    fun get(userId: Long, modelId: Long): List<ModelTag> {
-        return modelTagsDao.get(userId, modelId)
-    }
+    fun get(userId: Long, modelId: Long): List<ModelTag> = modelTagsDao.get(userId, modelId)
 
-    fun get(userId: Long, modelId: Long, tag: String): ModelTag? {
-        return modelTagsDao.get(userId, modelId, tag)
-    }
+    fun get(userId: Long, modelId: Long, tag: String): ModelTag? = modelTagsDao.get(userId, modelId, tag)
 
     fun delete(modelTag: ModelTag) {
         modelTagsDao.delete(modelTag)
