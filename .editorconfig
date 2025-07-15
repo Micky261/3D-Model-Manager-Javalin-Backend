@@ -1,0 +1,12 @@
+root = true
+
+[*.{kt,kts}]
+ktlint_standard_filename = disabled
+ktlint_standard_package-name = disabled
+ktlint_standard_final-newline = disabled
+ktlint_standard_class-signature = disabled
+ktlint_standard_function-signature = disabled
+
+ij_ktlint_disable = ClassDocumentationRule, FunctionDocumentationRule, ParameterDocumentationOrderRule
+
+max_line_length = 120

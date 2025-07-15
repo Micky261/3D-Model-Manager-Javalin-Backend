@@ -10,21 +10,13 @@ class CollectionService @Inject constructor(
     private val collectionDao: CollectionDao,
     private val modelDao: ModelDao,
 ) {
-    fun getCollections(userId: Long): List<Collection> {
-        return collectionDao.getCollections(userId)
-    }
+    fun getCollections(userId: Long): List<Collection> = collectionDao.getCollections(userId)
 
-    fun get(id: Long): Collection? {
-        return collectionDao.get(id)
-    }
+    fun get(id: Long): Collection? = collectionDao.get(id)
 
-    fun insert(collection: Collection): Long {
-        return collectionDao.insert(collection)
-    }
+    fun insert(collection: Collection): Long = collectionDao.insert(collection)
 
-    fun update(collection: Collection) {
-        return collectionDao.update(collection)
-    }
+    fun update(collection: Collection) = collectionDao.update(collection)
 
     fun delete(id: Long) {
         getModelIdsInCollection(id).forEach { modelId -> deleteRelation(id, modelId) }
@@ -35,20 +27,18 @@ class CollectionService @Inject constructor(
         collectionDao.insertRelation(id, modelId)
     }
 
-    fun getCollectionIdsByModel(modelId: Long): List<Long> {
-        return collectionDao.getCollectionsOfModel(modelId)
+    fun getCollectionIdsByModel(modelId: Long): List<Long> = collectionDao.getCollectionsOfModel(modelId)
+
+    fun getCollectionsOfModel(modelId: Long): List<Collection> = getCollectionIdsByModel(
+        modelId,
+    ).mapNotNull { collectionId ->
+        get(collectionId)
     }
 
-    fun getCollectionsOfModel(modelId: Long): List<Collection> {
-        return getCollectionIdsByModel(modelId).mapNotNull { collectionId -> get(collectionId) }
-    }
+    fun getModelIdsInCollection(id: Long): List<Long> = collectionDao.getModelsInCollection(id)
 
-    fun getModelIdsInCollection(id: Long): List<Long> {
-        return collectionDao.getModelsInCollection(id)
-    }
-
-    fun getModelsInCollection(id: Long): List<Model> {
-        return getModelIdsInCollection(id).mapNotNull { modelId -> modelDao.get(modelId) }
+    fun getModelsInCollection(id: Long): List<Model> = getModelIdsInCollection(id).mapNotNull { modelId ->
+        modelDao.get(modelId)
     }
 
     fun deleteRelation(id: Long, modelId: Long) {

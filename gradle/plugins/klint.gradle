@@ -6,13 +6,11 @@ dependencies {
 
 ktlint {
     debug = true
-    version = "1.2.1"
+    version = "1.6.0"
     verbose = true
     outputToConsole = true
     enableExperimentalRules = true
-    additionalEditorconfig = [
-            "ktlint_code_style": "intellij_idea",
-    ]
+    additionalEditorconfig = ["ktlint_code_style": "intellij_idea"]
     reporters {
         reporter "plain"
         reporter "checkstyle"
@@ -21,6 +19,5 @@ ktlint {
         exclude("**/generated/**")
         include("**/kotlin/**")
     }
-
-    disabledRules = ["ClassDocumentationRule", "FunctionDocumentationRule", "ParameterDocumentationOrderRule.class"]
+ //   disabledRules.set(["ClassDocumentationRule", "FunctionDocumentationRule", "ParameterDocumentationOrderRule.class"])
 }

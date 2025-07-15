@@ -86,29 +86,19 @@ object FileType {
     @Suppress("ConstPropertyName")
     const val unknownMimeType = "application/octet-stream"
 
-    fun getMimeTypeFromFilename(filename: String): String {
-        return getMimeType(getFileExtension(filename))
+    fun getMimeTypeFromFilename(filename: String): String = getMimeType(getFileExtension(filename))
+
+    fun getMimeType(extension: String): String = if (types.containsKey(extension)) {
+        types[extension]!!
+    } else {
+        unknownMimeType
     }
 
-    fun getMimeType(extension: String): String {
-        return if (types.containsKey(extension)) {
-            types[extension]!!
-        } else {
-            unknownMimeType
-        }
-    }
+    fun getFileExtension(filename: String): String = filename.substringAfterLast('.', "").lowercase()
 
-    fun getFileExtension(filename: String): String {
-        return filename.substringAfterLast('.', "").lowercase()
-    }
+    fun getFilenameWithoutExtension(filename: String): String = filename.substringBeforeLast('.', "")
 
-    fun getFilenameWithoutExtension(filename: String): String {
-        return filename.substringBeforeLast('.', "")
-    }
-
-    fun getApplicationFromFilename(filename: String): String? {
-        return getApplication(getFileExtension(filename))
-    }
+    fun getApplicationFromFilename(filename: String): String? = getApplication(getFileExtension(filename))
 
     fun getApplication(extension: String): String? {
         applications.forEach { (key, value) -> if (value.contains(extension)) return key }
@@ -116,20 +106,15 @@ object FileType {
         return null
     }
 
-    fun getModelFileTypeFromFilename(filename: String): ModelFileType? {
-        return getModelFileType(getFileExtension(filename))
-    }
+    fun getModelFileTypeFromFilename(filename: String): ModelFileType? = getModelFileType(getFileExtension(filename))
 
-    fun getModelFileType(extension: String): ModelFileType? {
-        return modelFileType.firstOrNull { (_, value) -> value.contains(extension) }?.first
-    }
+    fun getModelFileType(extension: String): ModelFileType? = modelFileType.firstOrNull { (_, value) ->
+        value.contains(extension)
+    }?.first
 
-    fun hasExtension(filename: String): Boolean {
-        return filename.contains(".") &&
-            filename.split(".").last().length <= 4
-    }
+    fun hasExtension(filename: String): Boolean = filename.contains(".") &&
+        filename.split(".").last().length <= 4
 
-    fun imagineExtension(filename: String, imaginedExt: String): String {
-        return if (hasExtension(filename)) filename else "$filename.$imaginedExt"
-    }
+    fun imagineExtension(filename: String, imaginedExt: String): String =
+        if (hasExtension(filename)) filename else "$filename.$imaginedExt"
 }

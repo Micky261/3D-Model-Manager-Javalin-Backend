@@ -14,52 +14,40 @@ class ModelService @Inject constructor(
     private val modelLinkService: ModelLinkService,
     private val modelTagsService: ModelTagsService,
 ) {
-    fun insert(model: Model): Long {
-        return modelDao.insert(model)
+    fun insert(model: Model): Long = modelDao.insert(model)
+
+    fun getAllByUser(userId: Long): List<Model> = modelDao.getAllByUser(userId)
+
+    fun getAllByUserFull(userId: Long): List<ModelFull> = modelDao.getAllByUser(userId).map { model ->
+        ModelFull.from(
+            model,
+            modelLinkService.get(userId, model.id),
+            modelTagsService.get(userId, model.id).map { it.tag },
+        )
     }
 
-    fun getAllByUser(userId: Long): List<Model> {
-        return modelDao.getAllByUser(userId)
+    fun getNewest(userId: Long, count: Int): List<ModelFull> = modelDao.getNewestByUser(userId, count).map { model ->
+        ModelFull.from(
+            model,
+            modelLinkService.get(userId, model.id),
+            modelTagsService.get(userId, model.id).map { it.tag },
+        )
     }
 
-    fun getAllByUserFull(userId: Long): List<ModelFull> {
-        return modelDao.getAllByUser(userId).map { model ->
-            ModelFull.from(
-                model,
-                modelLinkService.get(userId, model.id),
-                modelTagsService.get(userId, model.id).map { it.tag },
-            )
-        }
+    fun getRandom(userId: Long, count: Int): List<ModelFull> = modelDao.getRandomByUser(userId, count).map { model ->
+        ModelFull.from(
+            model,
+            modelLinkService.get(userId, model.id),
+            modelTagsService.get(userId, model.id).map { it.tag },
+        )
     }
 
-    fun getNewest(userId: Long, count: Int): List<ModelFull> {
-        return modelDao.getNewestByUser(userId, count).map { model ->
-            ModelFull.from(
-                model,
-                modelLinkService.get(userId, model.id),
-                modelTagsService.get(userId, model.id).map { it.tag },
-            )
-        }
-    }
-
-    fun getRandom(userId: Long, count: Int): List<ModelFull> {
-        return modelDao.getRandomByUser(userId, count).map { model ->
-            ModelFull.from(
-                model,
-                modelLinkService.get(userId, model.id),
-                modelTagsService.get(userId, model.id).map { it.tag },
-            )
-        }
-    }
-
-    fun getFavorites(userId: Long): List<ModelFull> {
-        return modelDao.getFavoritesByUser(userId).map { model ->
-            ModelFull.from(
-                model,
-                modelLinkService.get(userId, model.id),
-                modelTagsService.get(userId, model.id).map { it.tag },
-            )
-        }
+    fun getFavorites(userId: Long): List<ModelFull> = modelDao.getFavoritesByUser(userId).map { model ->
+        ModelFull.from(
+            model,
+            modelLinkService.get(userId, model.id),
+            modelTagsService.get(userId, model.id).map { it.tag },
+        )
     }
 
     fun get(userId: Long, id: Long): ModelFull? {
@@ -97,9 +85,8 @@ class ModelService @Inject constructor(
         modelDao.delete(id, userId)
     }
 
-    fun search(userId: Long, searchTerm: String, searchFields: Set<String>): List<Model> {
-        return modelDaoClass.search(userId, searchFields.intersect(Model.searchableFields), searchTerm)
-    }
+    fun search(userId: Long, searchTerm: String, searchFields: Set<String>): List<Model> = modelDaoClass
+        .search(userId, searchFields.intersect(Model.searchableFields), searchTerm)
 
     /**
      * Only for INTERNAL USE as it changes importedDescription, never expose it to API

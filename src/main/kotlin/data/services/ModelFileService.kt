@@ -20,37 +20,27 @@ import java.time.Instant
 class ModelFileService @Inject constructor(
     private val modelFilesDao: ModelFileDao,
 ) {
-    fun insertModelFile(modelFile: ModelFile): Long {
-        return modelFilesDao.insert(modelFile)
-    }
+    fun insertModelFile(modelFile: ModelFile): Long = modelFilesDao.insert(modelFile)
 
-    fun getModelFiles(modelId: Long, userId: Long): List<ModelFile> {
-        return modelFilesDao.get(modelId, userId)
-    }
+    fun getModelFiles(modelId: Long, userId: Long): List<ModelFile> = modelFilesDao.get(modelId, userId)
 
-    fun getModelFiles(modelId: Long, userId: Long, modelFileIds: List<Long>): List<ModelFile> {
-        return modelFilesDao.get(modelId, userId, modelFileIds)
-    }
+    fun getModelFiles(modelId: Long, userId: Long, modelFileIds: List<Long>): List<ModelFile> = modelFilesDao
+        .get(modelId, userId, modelFileIds)
 
-    fun getModelFile(userId: Long, fileId: Long): ModelFile? {
-        return modelFilesDao.getFileByUser(userId, fileId)
-    }
+    fun getModelFile(userId: Long, fileId: Long): ModelFile? = modelFilesDao.getFileByUser(userId, fileId)
 
-    fun getModelFiles(modelId: Long, userId: Long, type: ModelFileType): List<ModelFile> {
-        return modelFilesDao.get(modelId, userId, type)
-    }
+    fun getModelFiles(modelId: Long, userId: Long, type: ModelFileType): List<ModelFile> = modelFilesDao
+        .get(modelId, userId, type)
 
     fun getFile(userId: Long, fileId: Long): FileWithMimeType? {
         return getFile(modelFilesDao.getFileByUser(userId, fileId) ?: return null)
     }
 
-    fun getMainImage(modelId: Long, userId: Long): ModelFile? {
-        return modelFilesDao.getMainImage(modelId, userId)
-    }
+    fun getMainImage(modelId: Long, userId: Long): ModelFile? = modelFilesDao.getMainImage(modelId, userId)
 
-    fun getDefaultImageFile(): InputStream {
-        return this::class.java.classLoader.getResourceAsStream("images/models/DefaultModelImage.jpg")!!
-    }
+    fun getDefaultImageFile(): InputStream = this::class.java.classLoader.getResourceAsStream(
+        "images/models/DefaultModelImage.jpg",
+    )!!
 
     fun updateModelFile(userId: Long, fileId: Long, position: Long, type: ModelFileType, filename: String) {
         val dbFile = modelFilesDao.getFileByUser(userId, fileId) ?: return
@@ -127,19 +117,16 @@ class ModelFileService @Inject constructor(
         )
     }
 
-    fun exists(userId: Long, modelId: Long, type: ModelFileType, filename: String): Boolean {
-        return modelFilesDao.checkDuplicate(modelId, userId, type, filename) != 0L
-    }
+    fun exists(userId: Long, modelId: Long, type: ModelFileType, filename: String): Boolean =
+        modelFilesDao.checkDuplicate(modelId, userId, type, filename) != 0L
 
     fun overwriteFileInformation(fileId: Long, newStorage: String, newFileSize: Long) {
         modelFilesDao.updateFileInformation(fileId, newStorage, newFileSize)
     }
 
-    fun getModelFile(userId: Long, modelId: Long, type: ModelFileType, filename: String): ModelFile? {
-        return modelFilesDao.getModelFile(modelId, userId, type, filename)
-    }
+    fun getModelFile(userId: Long, modelId: Long, type: ModelFileType, filename: String): ModelFile? = modelFilesDao
+        .getModelFile(modelId, userId, type, filename)
 
-    fun getMaxPosition(userId: Long, modelId: Long, type: ModelFileType): Long {
-        return modelFilesDao.maxPosition(userId, modelId, type)
-    }
+    fun getMaxPosition(userId: Long, modelId: Long, type: ModelFileType): Long = modelFilesDao
+        .maxPosition(userId, modelId, type)
 }

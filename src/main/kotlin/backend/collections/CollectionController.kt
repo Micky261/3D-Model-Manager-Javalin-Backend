@@ -51,7 +51,8 @@ class CollectionController @Inject constructor(
         val collectionFromDb = collectionService.get(id) ?: throw NotFoundResponse()
 
         if (
-            id == collection.id && collection.userId == collectionFromDb.userId &&
+            id == collection.id &&
+            collection.userId == collectionFromDb.userId &&
             (collection.mainModel == null || accessService.userOwnsModel(ctx.userId(), collection.mainModel))
         ) {
             collectionService.update(collection)

@@ -60,10 +60,9 @@ class ThumbnailService @Inject constructor(
             }
         }
 
-        fun getFilename(filename: String, format: ThumbnailFormat, size: Int): String {
-            return FileType.getFilenameWithoutExtension(filename) +
+        fun getFilename(filename: String, format: ThumbnailFormat, size: Int): String =
+            FileType.getFilenameWithoutExtension(filename) +
                 "${format.postFixFormat.format(size)}.${FileType.getFileExtension(filename)}"
-        }
 
         fun getPathWithFilename(
             userId: Long,
@@ -71,9 +70,7 @@ class ThumbnailService @Inject constructor(
             filename: String,
             format: ThumbnailFormat,
             size: Int,
-        ): String {
-            return Storage.getDefaultStorage().getThumbnailPath(userId, modelId) + getFilename(filename, format, size)
-        }
+        ): String = Storage.getDefaultStorage().getThumbnailPath(userId, modelId) + getFilename(filename, format, size)
 
         private fun checkSizeValid(format: ThumbnailFormat, size: Int) {
             if (!format.availableSizes.contains(size)) throw ThumbnailSizeNotValid(format, size)

@@ -13,13 +13,13 @@ object StorageSize {
 
     private val capacityRegex = Regex("(\\d+)([BKMGT])?", RegexOption.IGNORE_CASE)
 
-    fun fitsInStorage(fileSize: Long, storage: AppConfigStorage): Boolean {
-        return getFreeSizeOfStorageInByte(storage) >= fileSize
-    }
+    fun fitsInStorage(fileSize: Long, storage: AppConfigStorage): Boolean = getFreeSizeOfStorageInByte(
+        storage,
+    ) >= fileSize
 
-    fun getFreeSizeOfStorageInByte(storage: AppConfigStorage): Long {
-        return getSizeOfStorageInByte(storage) - getOccupiedSizeOfStorageInByte(storage)
-    }
+    fun getFreeSizeOfStorageInByte(storage: AppConfigStorage): Long = getSizeOfStorageInByte(
+        storage,
+    ) - getOccupiedSizeOfStorageInByte(storage)
 
     fun getSizeOfStorageInByte(storage: AppConfigStorage): Long {
         val sizeList = capacityRegex.find(storage.capacity)?.groupValues ?: listOf(storage.capacity, storage.capacity)
@@ -31,17 +31,13 @@ object StorageSize {
         }
     }
 
-    fun getOccupiedSizeOfStorageInByte(storage: AppConfigStorage): Long {
-        return modelFileDao.getStorageSize(storage.name)
-    }
+    fun getOccupiedSizeOfStorageInByte(storage: AppConfigStorage): Long = modelFileDao.getStorageSize(storage.name)
 
-    fun unitToMagnitude(unit: String): Long {
-        return when (unit.uppercase()) {
-            "K" -> 1000L
-            "M" -> 1000000L
-            "G" -> 1000000000L
-            "T" -> 1000000000000L
-            else -> 1
-        }
+    fun unitToMagnitude(unit: String): Long = when (unit.uppercase()) {
+        "K" -> 1000L
+        "M" -> 1000000L
+        "G" -> 1000000000L
+        "T" -> 1000000000000L
+        else -> 1
     }
 }

@@ -9,7 +9,6 @@ import java.sql.SQLException
 
 class MapColumnMapper : ColumnMapper<Map<String, String>> {
     @Throws(SQLException::class)
-    override fun map(r: ResultSet, columnNumber: Int, ctx: StatementContext?): Map<String, String> {
-        return JacksonModule.mapper.readValue(r.getString(columnNumber))
-    }
+    override fun map(r: ResultSet, columnNumber: Int, ctx: StatementContext?): Map<String, String> =
+        JacksonModule.mapper.readValue(r.getString(columnNumber))
 }

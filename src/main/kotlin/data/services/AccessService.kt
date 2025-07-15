@@ -6,7 +6,5 @@ import data.dao.ModelDao
 class AccessService @Inject constructor(
     private val modelDao: ModelDao,
 ) {
-    fun userOwnsModel(userId: Long, modelId: Long): Boolean {
-        return modelDao.get(modelId, userId) !== null
-    }
+    fun userOwnsModel(userId: Long, modelId: Long): Boolean = modelDao.get(modelId, userId) !== null
 }
