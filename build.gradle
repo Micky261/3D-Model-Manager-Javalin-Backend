@@ -59,8 +59,8 @@ dependencies {
     implementation group: "org.jdbi", name: "jdbi3-kotlin-sqlobject", version: "3.49.5"
     implementation group: "org.postgresql", name: "postgresql", version: "42.7.7"
     implementation group: "org.mariadb.jdbc", name: "mariadb-java-client", version: "3.5.4"
-    implementation group: "org.flywaydb", name: "flyway-core", version: "11.10.0"
-    implementation group: "org.flywaydb", name: "flyway-mysql", version: "11.10.0"
+    implementation group: "org.flywaydb", name: "flyway-core", version: "11.10.2"
+    implementation group: "org.flywaydb", name: "flyway-mysql", version: "11.10.2"
 
     implementation group: "com.github.kittinunf.fuel", name: "fuel", version: "2.3.1"
     implementation group: "com.github.kittinunf.fuel", name: "fuel-jackson", version: "2.3.1"
