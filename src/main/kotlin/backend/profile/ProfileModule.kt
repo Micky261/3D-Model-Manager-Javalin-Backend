@@ -14,5 +14,11 @@ object ProfileModule : ControllerModule() {
                 post("settings/accounts", controller::setSettingsAccounts, JavalinRole.Authorized)
             }
         }
+
+        route<ProfileStatsController> { controller ->
+            path("profile/") {
+                get("stats", controller::getProfileStatistics, JavalinRole.Authorized)
+            }
+        }
     }
 }

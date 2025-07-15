@@ -59,4 +59,13 @@ interface ModelLinkDao {
         @Bind("id") id: Long,
         @Bind("userId") userId: Long,
     )
+
+    @SqlQuery(
+        """
+            SELECT * FROM model_links WHERE user_id = :userId
+        """,
+    )
+    fun getAllByUser(
+        @Bind("userId") userId: Long,
+    ): List<ModelLink>
 }

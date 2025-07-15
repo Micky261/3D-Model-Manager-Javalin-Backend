@@ -27,3 +27,25 @@ fun Context.fileResponse(file: InputStream, filename: String) {
 fun JsonNode.getText(field: String) = this.get(field).asText()!!
 fun JsonNode.getLong(field: String) = this.get(field).asLong()
 fun JsonNode.getBoolean(field: String) = this.get(field).asBoolean()
+
+fun Long.formatFileSize(): String {
+    if (this == 0L) {
+        return "0 B"
+    }
+
+    val units = arrayOf("B", "KB", "MB", "GB", "TB")
+    val k = 1024.0
+    var value = this.toDouble()
+    var unitIndex = 0
+
+    while (value >= k && unitIndex < units.size - 1) {
+        value /= k
+        unitIndex++
+    }
+
+    return if (unitIndex == 0) {
+        String.format("%d %s", this, units[unitIndex])
+    } else {
+        String.format("%.2f %s", value, units[unitIndex])
+    }
+}

@@ -146,4 +146,13 @@ interface ModelFileDao {
         @Bind("modelId") modelId: Long,
         @Bind("type") type: ModelFileType,
     ): Long
+
+    @SqlQuery(
+        """
+         SELECT * FROM model_files WHERE user_id = :userId
+      """,
+    )
+    fun getFilesByUser(
+        @Bind("userId") userId: Long,
+    ): List<ModelFile>
 }

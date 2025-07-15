@@ -21,4 +21,6 @@ class ModelLinkService @Inject constructor(
     fun delete(id: Long, userId: Long) {
         modelLinkDao.delete(id, userId)
     }
+
+    fun getByUser(userId: Long): List<ModelLink> = modelLinkDao.getAllByUser(userId)
 }

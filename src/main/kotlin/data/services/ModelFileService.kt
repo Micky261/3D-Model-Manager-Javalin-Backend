@@ -129,4 +129,6 @@ class ModelFileService @Inject constructor(
 
     fun getMaxPosition(userId: Long, modelId: Long, type: ModelFileType): Long = modelFilesDao
         .maxPosition(userId, modelId, type)
+
+    fun getFilesByUser(userId: Long): List<ModelFile> = modelFilesDao.getFilesByUser(userId)
 }
