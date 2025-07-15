@@ -5,7 +5,7 @@ plugins {
     id "org.jlleitschuh.gradle.ktlint" version "13.0.0"
     id "io.gitlab.arturbosch.detekt" version "1.23.8"
 
-    id "com.gradleup.shadow" version "8.3.5"
+    id "com.gradleup.shadow" version "8.3.8"
     id "application"
 
     // Check vor updates with `gradle-upgrade-interactive` (npm package)
