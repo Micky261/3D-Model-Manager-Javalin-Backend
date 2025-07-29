@@ -52,7 +52,7 @@ dependencies {
     implementation group: "com.aayushatharva.brotli4j", name: "native-linux-riscv64", version: "$brotliVersion"
     implementation group: "io.swagger.core.v3", name: "swagger-core", version: "2.2.34"
 
-    implementation group: "com.zaxxer", name: "HikariCP", version: "6.3.0"
+    implementation group: "com.zaxxer", name: "HikariCP", version: "7.0.0"
     implementation group: "org.jdbi", name: "jdbi3-core", version: "3.49.5"
     implementation group: "org.jdbi", name: "jdbi3-kotlin", version: "3.49.5"
     implementation group: "org.jdbi", name: "jdbi3-postgres", version: "3.49.5"
