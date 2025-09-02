@@ -74,7 +74,7 @@ dependencies {
 
     implementation group: "org.slf4j", name: "slf4j-simple", version: "2.1.0-alpha1"
 
-    implementation group: "com.fasterxml.jackson.module", name: "jackson-module-kotlin", version: "2.19.1"
+    implementation group: "com.fasterxml.jackson.module", name: "jackson-module-kotlin", version: "2.20.0"
     implementation group: "com.fasterxml.jackson.datatype", name: "jackson-datatype-jsr310", version: "2.19.1"
     implementation group: "de.undercouch", name: "bson4jackson", version: "2.18.0"
 
