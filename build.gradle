@@ -1,15 +1,15 @@
 plugins {
-    id "org.jetbrains.kotlin.jvm" version "2.2.0"
-    id "org.jetbrains.kotlin.kapt" version "2.2.0"
+    id "org.jetbrains.kotlin.jvm" version "2.3.20-Beta2"
+    id "org.jetbrains.kotlin.kapt" version "2.3.20-Beta2"
 
-    id "org.jlleitschuh.gradle.ktlint" version "13.0.0"
+    id "org.jlleitschuh.gradle.ktlint" version "14.0.1"
     id "io.gitlab.arturbosch.detekt" version "1.23.8"
 
-    id "com.gradleup.shadow" version "8.3.8"
+    id "com.gradleup.shadow" version "9.3.1"
     id "application"
 
     // Check vor updates with `gradle-upgrade-interactive` (npm package)
-    id "com.github.ben-manes.versions" version "0.52.0"
+    id "com.github.ben-manes.versions" version "0.53.0"
 }
 
 apply from: "$rootDir/gradle/plugins/klint.gradle"
@@ -32,69 +32,70 @@ repositories {
 }
 
 dependencies {
-    implementation group: "io.github.cdimascio", name: "dotenv-kotlin", version: "6.5.1"
+    implementation("io.github.cdimascio:dotenv-kotlin:6.5.1")
 
-    implementation group: "io.javalin", name: "javalin-bundle", version: "6.7.0"
-    implementation group: "io.javalin.community.openapi", name: "javalin-openapi-plugin", version: "6.7.0-1"
-    kapt group: "io.javalin.community.openapi", name: "openapi-annotation-processor", version: "6.7.0-1"
-    annotationProcessor group: "io.javalin.community.openapi", name: "openapi-annotation-processor", version: "6.7.0-1"
+    implementation("io.javalin:javalin-bundle:6.7.0")
+    implementation("io.javalin.community.openapi:javalin-openapi-plugin:6.7.0-1")
+    kapt("io.javalin.community.openapi:openapi-annotation-processor:6.7.0-1")
+    annotationProcessor("io.javalin.community.openapi:openapi-annotation-processor:6.7.0-1")
 
-    def brotliVersion = "1.18.0"
-    implementation group: "com.aayushatharva.brotli4j", name: "brotli4j", version: "$brotliVersion"
-    implementation group: "com.aayushatharva.brotli4j", name: "native-windows-x86_64", version: "$brotliVersion"
-    implementation group: "com.aayushatharva.brotli4j", name: "native-windows-aarch64", version: "$brotliVersion"
-    implementation group: "com.aayushatharva.brotli4j", name: "native-osx-aarch64", version: "$brotliVersion"
-    implementation group: "com.aayushatharva.brotli4j", name: "native-linux-aarch64", version: "$brotliVersion"
-    implementation group: "com.aayushatharva.brotli4j", name: "native-linux-x86_64", version: "$brotliVersion"
-    implementation group: "com.aayushatharva.brotli4j", name: "native-linux-armv7", version: "$brotliVersion"
-    implementation group: "com.aayushatharva.brotli4j", name: "native-linux-ppc64le", version: "$brotliVersion"
-    implementation group: "com.aayushatharva.brotli4j", name: "native-linux-s390x", version: "$brotliVersion"
-    implementation group: "com.aayushatharva.brotli4j", name: "native-linux-riscv64", version: "$brotliVersion"
-    implementation group: "io.swagger.core.v3", name: "swagger-core", version: "2.2.34"
+    def brotliVersion = "1.20.0"
+    implementation("com.aayushatharva.brotli4j:brotli4j:$brotliVersion")
+    implementation("com.aayushatharva.brotli4j:native-windows-x86_64:$brotliVersion")
+    implementation("com.aayushatharva.brotli4j:native-windows-aarch64:$brotliVersion")
+    implementation("com.aayushatharva.brotli4j:native-osx-aarch64:$brotliVersion")
+    implementation("com.aayushatharva.brotli4j:native-linux-aarch64:$brotliVersion")
+    implementation("com.aayushatharva.brotli4j:native-linux-x86_64:$brotliVersion")
+    implementation("com.aayushatharva.brotli4j:native-linux-armv7:$brotliVersion")
+    implementation("com.aayushatharva.brotli4j:native-linux-ppc64le:$brotliVersion")
+    implementation("com.aayushatharva.brotli4j:native-linux-s390x:$brotliVersion")
+    implementation("com.aayushatharva.brotli4j:native-linux-riscv64:$brotliVersion")
+    implementation("io.swagger.core.v3:swagger-core:2.2.42")
 
-    implementation group: "com.zaxxer", name: "HikariCP", version: "6.3.0"
-    implementation group: "org.jdbi", name: "jdbi3-core", version: "3.49.5"
-    implementation group: "org.jdbi", name: "jdbi3-kotlin", version: "3.49.5"
-    implementation group: "org.jdbi", name: "jdbi3-postgres", version: "3.49.5"
-    implementation group: "org.jdbi", name: "jdbi3-kotlin-sqlobject", version: "3.49.5"
-    implementation group: "org.postgresql", name: "postgresql", version: "42.7.7"
-    implementation group: "org.mariadb.jdbc", name: "mariadb-java-client", version: "3.5.4"
-    implementation group: "org.flywaydb", name: "flyway-core", version: "11.10.2"
-    implementation group: "org.flywaydb", name: "flyway-mysql", version: "11.10.2"
+    implementation("com.zaxxer:HikariCP:7.0.2")
+    implementation("org.jdbi:jdbi3-core:3.51.0")
+    implementation("org.jdbi:jdbi3-kotlin:3.51.0")
+    implementation("org.jdbi:jdbi3-postgres:3.51.0")
+    implementation("org.jdbi:jdbi3-kotlin-sqlobject:3.51.0")
+    implementation("org.postgresql:postgresql:42.7.10")
+    implementation("org.mariadb.jdbc:mariadb-java-client:3.5.7")
+    implementation("org.flywaydb:flyway-core:12.0.1")
+    implementation("org.flywaydb:flyway-mysql:12.0.1")
 
-    def ktorVersion = "3.0.3"
-    implementation group: "io.ktor", name: "ktor-client-core", version: "$ktorVersion"
-    implementation group: "io.ktor", name: "ktor-client-cio", version: "$ktorVersion"
-    implementation group: "io.ktor", name: "ktor-client-content-negotiation", version: "$ktorVersion"
-    implementation group: "io.ktor", name: "ktor-serialization-jackson", version: "$ktorVersion"
-    implementation group: "com.github.lookfirst", name: "sardine", version: "5.13"
-    implementation group: "org.jsoup", name: "jsoup", version: "1.21.1"
+    def ktorVersion = "3.4.0"
+    implementation("io.ktor:ktor-client-core:$ktorVersion")
+    implementation("io.ktor:ktor-client-cio:$ktorVersion")
+    implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
+    implementation("io.ktor:ktor-serialization-jackson:$ktorVersion")
 
-    implementation group: "com.google.inject", name: "guice", version: "7.0.0"
-    implementation group: "dev.misfitlabs.kotlinguice4", name: "kotlin-guice", version: "3.0.0"
-    implementation group: "com.google.guava", name: "guava", version: "33.4.8-jre"
+    implementation("com.github.lookfirst:sardine:5.13")
+    implementation("org.jsoup:jsoup:1.22.1")
 
-    implementation group: "org.slf4j", name: "slf4j-simple", version: "2.1.0-alpha1"
+    implementation("com.google.inject:guice:7.0.0")
+    implementation("dev.misfitlabs.kotlinguice4:kotlin-guice:3.0.0")
+    implementation("com.google.guava:guava:33.5.0-jre")
 
-    implementation group: "com.fasterxml.jackson.module", name: "jackson-module-kotlin", version: "2.19.1"
-    implementation group: "com.fasterxml.jackson.datatype", name: "jackson-datatype-jsr310", version: "2.19.1"
-    implementation group: "de.undercouch", name: "bson4jackson", version: "2.18.0"
+    implementation("org.slf4j:slf4j-simple:2.1.0-alpha1")
 
-    implementation group: "org.jetbrains.kotlinx", name: "kotlinx-coroutines-core", version: "1.10.2"
-    implementation group: "org.jetbrains.kotlin", name: "kotlin-stdlib", version: "2.2.0"
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.21.0")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.21.0")
+    implementation("de.undercouch:bson4jackson:2.18.0")
 
-    implementation group: "commons-codec", name: "commons-codec", version: "1.18.0"
-    implementation group: "commons-io", name: "commons-io", version: "2.19.0"
-    implementation group: "org.apache.commons", name: "commons-compress", version: "1.27.1"
-    implementation group: "org.apache.commons", name: "commons-lang3", version: "3.18.0"
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:2.3.20-Beta2")
 
-    implementation group: "net.lingala.zip4j", name: "zip4j", version: "2.11.5"
+    implementation("commons-codec:commons-codec:1.21.0")
+    implementation("commons-io:commons-io:2.21.0")
+    implementation("org.apache.commons:commons-compress:1.28.0")
+    implementation("org.apache.commons:commons-lang3:3.20.0")
 
-    implementation group: "at.favre.lib", name: "bcrypt", version: "0.10.2"
+    implementation("net.lingala.zip4j:zip4j:2.11.6")
 
-    implementation group: "io.github.furstenheim", name: "copy_down", version: "1.1"
+    implementation("at.favre.lib:bcrypt:0.10.2")
 
-    implementation group: "org.simplejavamail", name: "simple-java-mail", version: "8.12.4"
+    implementation("io.github.furstenheim:copy_down:1.1")
+
+    implementation("org.simplejavamail:simple-java-mail:8.12.6")
 }
 
 kotlin {

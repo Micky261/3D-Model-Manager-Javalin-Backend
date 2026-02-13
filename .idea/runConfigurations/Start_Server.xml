@@ -5,6 +5,7 @@
     <option name="MAIN_CLASS_NAME" value="core.BackendKt" />
     <module name="3D_Model_Manager_Javalin_Backend.main" />
     <shortenClasspath name="NONE" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
     <method v="2">
       <option name="Make" enabled="true" />
     </method>
