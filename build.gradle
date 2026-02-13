@@ -91,6 +91,8 @@ dependencies {
     implementation group: "at.favre.lib", name: "bcrypt", version: "0.10.2"
 
     implementation group: "io.github.furstenheim", name: "copy_down", version: "1.1"
+
+    implementation group: "org.simplejavamail", name: "simple-java-mail", version: "8.12.4"
 }
 
 kotlin {

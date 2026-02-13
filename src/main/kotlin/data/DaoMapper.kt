@@ -3,6 +3,7 @@ package data
 import com.google.inject.Inject
 import com.google.inject.Provider
 import data.dao.CollectionDao
+import data.dao.EmailVerificationDao
 import data.dao.ModelDao
 import data.dao.ModelFileDao
 import data.dao.ModelLinkDao
@@ -59,4 +60,10 @@ class UserDaoProvider @Inject constructor(
     private val jdbi: Jdbi,
 ) : Provider<UserDao> {
     override fun get(): UserDao = jdbi.onDemand()
+}
+
+class EmailVerificationDaoProvider @Inject constructor(
+    private val jdbi: Jdbi,
+) : Provider<EmailVerificationDao> {
+    override fun get(): EmailVerificationDao = jdbi.onDemand()
 }

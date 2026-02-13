@@ -1,9 +1,15 @@
 package core.background
 
+import com.google.inject.Injector
+import data.dao.EmailVerificationDao
+import data.dao.UserDao
+import data.services.EmailVerificationService
+import dev.misfitlabs.kotlinguice4.getInstance
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.slf4j.Logger
 import java.io.File
 import java.time.Instant
 import kotlin.time.Duration
@@ -11,26 +17,37 @@ import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 
 object CleanUpCoroutine {
-    private val cleanupPackages: List<CleanupPackage> = listOf(
-        CleanupPackage(cleanTemp(), 1.hours),
-        CleanupPackage(cleanUploadTemp(), 30.minutes),
-    )
+    private lateinit var injector: Injector
+    private lateinit var logger: Logger
+
+    private val cleanupPackages: MutableList<CleanupPackage> = mutableListOf()
 
     @OptIn(DelicateCoroutinesApi::class)
-    fun start() {
+    fun start(injector: Injector) {
+        this.injector = injector
+        this.logger = injector.getInstance()
+
+        cleanupPackages.addAll(
+            listOf(
+                CleanupPackage(::cleanTemp, 1.hours),
+                CleanupPackage(::cleanUploadTemp, 30.minutes),
+                CleanupPackage(::cleanExpiredEmailVerifications, 6.hours),
+            ),
+        )
+
         GlobalScope.launch {
             while (true) {
                 try {
                     cleanupPackages.forEach { cp ->
-                        if (cp.lastRun.plusSeconds(cp.interval.inWholeSeconds).isAfter(Instant.now())) {
+                        if (Instant.now().isAfter(cp.lastRun.plusSeconds(cp.interval.inWholeSeconds))) {
                             System.gc()
-                            cp.runFunction
+                            cp.runFunction()
                             System.gc()
                             cp.lastRun = Instant.now()
                         }
                     }
                 } catch (e: Exception) {
-                    println(e.message)
+                    logger.error("Error during cleanup", e)
                 }
 
                 delay(5.minutes)
@@ -66,8 +83,41 @@ object CleanUpCoroutine {
         }
     }
 
+    private fun cleanExpiredEmailVerifications() {
+        val emailVerificationDao = injector.getInstance<EmailVerificationDao>()
+        val userDao = injector.getInstance<UserDao>()
+
+        // Get user IDs with expired verifications
+        val expiryTime = Instant.now().minusSeconds(EmailVerificationService.TOKEN_VALIDITY_HOURS * 60 * 60).epochSecond
+        val affectedUserIds = emailVerificationDao.getExpiredUserIds(expiryTime)
+
+        // Delete expired verification tokens
+        val deletedTokens = emailVerificationDao.deleteExpired(expiryTime)
+
+        if (deletedTokens > 0) {
+            logger.info("Cleaned up $deletedTokens expired email verification token(s)")
+        }
+
+        // Delete unverified users who no longer have any verification tokens
+        var deletedUsers = 0
+        affectedUserIds.distinct().forEach { userId ->
+            // Check if user still has a valid verification token (e.g., they requested a new one)
+            val hasValidToken = emailVerificationDao.getByUserId(userId) != null
+
+            if (!hasValidToken) {
+                // Delete user only if they are unverified and have no remaining tokens
+                val deleted = userDao.deleteUnverifiedUser(userId)
+                deletedUsers += deleted
+            }
+        }
+
+        if (deletedUsers > 0) {
+            logger.info("Cleaned up $deletedUsers unverified user account(s) with expired registration")
+        }
+    }
+
     private data class CleanupPackage(
-        val runFunction: Unit,
+        val runFunction: () -> Unit,
         val interval: Duration,
         var lastRun: Instant = Instant.now(),
     )

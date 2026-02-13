@@ -8,6 +8,7 @@ import io.javalin.http.Context
 import io.javalin.http.Header
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import java.io.InputStream
+import java.security.SecureRandom
 
 fun String.toUrl() = this.toHttpUrl().toString()
 
@@ -49,3 +50,10 @@ fun Long.formatFileSize(): String {
         String.format("%.2f %s", value, units[unitIndex])
     }
 }
+
+private val secureRandom = SecureRandom()
+private val alphanumericChars = ('a'..'z') + ('A'..'Z') + ('0'..'9')
+
+fun randomAlphanumeric(length: Int): String = (1..length)
+    .map { alphanumericChars[secureRandom.nextInt(alphanumericChars.size)] }
+    .joinToString("")

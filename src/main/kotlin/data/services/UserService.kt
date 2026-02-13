@@ -8,11 +8,16 @@ import data.dao.UserDao
 class UserService @Inject constructor(
     private val userDao: UserDao,
 ) {
-//    fun insert(user: User) {
-//        userDao.insert(user)
-//    }
+    fun insert(name: String, email: String, plainPassword: String): Long {
+        val hashedPassword = hashPassword(plainPassword)
+        return userDao.insert(name, email, hashedPassword)
+    }
 
     fun get(email: String): User? = userDao.getUserByMail(email)
+
+    fun getById(id: Long): User? = userDao.getUserById(id)
+
+    fun emailExists(email: String): Boolean = get(email) != null
 
     fun checkLogin(email: String, password: String): User? {
         val user = get(email) ?: return null

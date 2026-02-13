@@ -5,7 +5,7 @@ ENV STATS_JAVALIN_PORT=8421
 
 # Copy backend
 COPY ./jar/3DMM-all.jar /opt/backend/3DMM-all.jar
-COPY ./config/app-config.template.json /config/app-config.json
+COPY config/app-config.template.json /config/app-config.json
 
 EXPOSE $STATS_JAVALIN_PORT
 

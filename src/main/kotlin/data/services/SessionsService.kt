@@ -5,13 +5,13 @@ import data.bean.Session
 import data.bean.User
 import data.dao.SessionsDao
 import data.dto.SessionDto
-import org.apache.commons.lang3.RandomStringUtils
+import utils.randomAlphanumeric
 import java.time.Instant
 
 class SessionsService @Inject constructor(
     private val sessionsDao: SessionsDao,
 ) {
-    fun generateSessionId(): String = RandomStringUtils.randomAlphanumeric(128)
+    fun generateSessionId(): String = randomAlphanumeric(128)
 
     fun insert(userId: Long, sessionId: String) {
         sessionsDao.insert(userId, sessionId)

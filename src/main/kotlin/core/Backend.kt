@@ -31,5 +31,5 @@ fun main() {
         args.config.general.serverPort,
     )
 
-    CleanUpCoroutine.start()
+    CleanUpCoroutine.start(injector)
 }

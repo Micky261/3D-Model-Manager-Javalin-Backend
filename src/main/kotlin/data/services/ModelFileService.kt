@@ -8,8 +8,8 @@ import data.dao.ModelFileDao
 import data.dto.FileWithMimeType
 import net.lingala.zip4j.ZipFile
 import net.lingala.zip4j.model.ZipParameters
-import org.apache.commons.lang3.RandomStringUtils
 import storage.Storage
+import utils.randomAlphanumeric
 import storage.exception.TargetFileAlreadyExistsException
 import utils.thumbnail.ThumbnailService
 import java.io.File
@@ -93,7 +93,7 @@ class ModelFileService @Inject constructor(
         if (fileList.isEmpty()) return null
 
         File("./temp/").mkdirs()
-        val zip = ZipFile("./temp/${RandomStringUtils.randomAlphanumeric(8)}-${Instant.now().epochSecond}.zip")
+        val zip = ZipFile("./temp/${randomAlphanumeric(8)}-${Instant.now().epochSecond}.zip")
         val zipParameters = ZipParameters()
 
         fileList.forEach { file ->

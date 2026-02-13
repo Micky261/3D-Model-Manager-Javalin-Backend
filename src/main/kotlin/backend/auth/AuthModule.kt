@@ -1,6 +1,7 @@
 package backend.auth
 
 import core.javalin.ControllerModule
+import core.javalin.JavalinRole
 import io.javalin.apibuilder.ApiBuilder.get
 import io.javalin.apibuilder.ApiBuilder.path
 import io.javalin.apibuilder.ApiBuilder.post
@@ -10,14 +11,14 @@ object AuthModule : ControllerModule() {
         route<AuthController> { controller ->
             path("") {
                 post("login", controller::login)
-//                post("register", controller:register)
+                post("register", controller::register)
             }
         }
 
-        route<VerificationController> { _ ->
+        route<VerificationController> { controller ->
             path("auth/email") {
-//                get("resend", controller::resend)
-//                get("verify/{id}/{hash}", controller:verify)
+                post("resend", controller::resend, JavalinRole.Authorized)
+                get("verify/{token}", controller::verify)
             }
         }
     }
