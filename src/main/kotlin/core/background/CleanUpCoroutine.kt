@@ -5,8 +5,10 @@ import data.dao.EmailVerificationDao
 import data.dao.UserDao
 import data.services.EmailVerificationService
 import dev.misfitlabs.kotlinguice4.getInstance
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.slf4j.Logger
@@ -20,9 +22,9 @@ object CleanUpCoroutine {
     private lateinit var injector: Injector
     private lateinit var logger: Logger
 
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private val cleanupPackages: MutableList<CleanupPackage> = mutableListOf()
 
-    @OptIn(DelicateCoroutinesApi::class)
     fun start(injector: Injector) {
         this.injector = injector
         this.logger = injector.getInstance()
@@ -35,7 +37,7 @@ object CleanUpCoroutine {
             ),
         )
 
-        GlobalScope.launch {
+        scope.launch {
             while (true) {
                 try {
                     cleanupPackages.forEach { cp ->
@@ -53,6 +55,11 @@ object CleanUpCoroutine {
                 delay(5.minutes)
             }
         }
+    }
+
+    fun stop() {
+        logger.info("Stopping cleanup coroutine...")
+        scope.cancel()
     }
 
     private fun cleanTemp() {

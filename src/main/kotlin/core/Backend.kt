@@ -27,6 +27,8 @@ fun main() {
     }.exception(Exception::class.java) { exception, ctx ->
         logger.info("An error occurred during a request", exception)
         ctx.status(INTERNAL_SERVER_ERROR_500).result("Internal Server Error")
+    }.events { events ->
+        events.serverStopping { CleanUpCoroutine.stop() }
     }.start(
         args.config.general.serverPort,
     )
