@@ -15,6 +15,7 @@ import data.services.UserSettingsService
 import dev.misfitlabs.kotlinguice4.getInstance
 import io.github.furstenheim.CopyDown
 import net.lingala.zip4j.io.inputstream.ZipInputStream
+import org.slf4j.Logger
 import storage.Storage
 import java.io.ByteArrayInputStream
 
@@ -28,6 +29,7 @@ abstract class BaseImporter {
         private val injector: Injector = Guice.createInjector(BackendModule())
         val config = injector.getInstance<AppConfig>()
         private val modelFileService = injector.getInstance<ModelFileService>()
+        val logger: Logger = injector.getInstance()
 
         const val USER_AGENT = "3DMM-bot/1.0"
 
@@ -107,8 +109,7 @@ abstract class BaseImporter {
             var file = zipIS.nextEntry
             while (file != null) {
                 val filename = file.fileName
-                println(file)
-                println(filename)
+                logger.debug("Unzipping file: {} ({})", filename, file)
 
                 file = zipIS.nextEntry
             }

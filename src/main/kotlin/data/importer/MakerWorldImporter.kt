@@ -11,7 +11,6 @@ import data.bean.ModelFileType
 import data.bean.ModelTag
 import data.dto.UserSettingKey
 import io.javalin.http.FailedDependencyResponse
-import org.apache.commons.lang3.tuple.MutablePair
 import utils.getBoolean
 import utils.getFilenameWithExtensionFromUrl
 import utils.getLong
@@ -19,6 +18,8 @@ import utils.getText
 import utils.ua
 
 class MakerWorldImporter : BaseImporter() {
+    private data class FileCounters(var model: Long = 1L, var various: Long = 1L)
+
     private val modelUrl =
         "https://makerworld.com/api/v1/design-service/design/%s"
     private val downloadUrlPostfix = "/model?modelType=all&type=download"
@@ -66,7 +67,7 @@ class MakerWorldImporter : BaseImporter() {
         val modelId = this.modelService.insert(model)
 
         var imageCounter = 1L
-        var counters = MutablePair(1L, 1L) // left := model, right := various
+        var counters = FileCounters()
 
         metadata.get("tags").forEach { tag ->
             val modelTag = ModelTag(userId, modelId, tag.asText())
@@ -176,21 +177,18 @@ class MakerWorldImporter : BaseImporter() {
         modelService.appendDescription(userId, modelId, instanceDescriptionExtension.joinToString("\n\n"))
 
         // Store json result from API
-        storeData(metadata, userId, modelId, ModelFileType.various, "api-response.json", counters.right++)
+        storeData(metadata, userId, modelId, ModelFileType.various, "api-response.json", counters.various++)
 
         return modelId
     }
 
-    /**
-     * @return left: model, right: various
-     */
     private fun downloadAndStore(
         downloadUrl: String,
         userId: Long,
         modelId: Long,
-        counters: MutablePair<Long, Long>,
+        counters: FileCounters,
         instanceFilenamePrefix: String = "",
-    ): MutablePair<Long, Long> {
+    ): FileCounters {
         Fuel.get(downloadUrl).ua()
             .header("Host", "makerworld.com")
             .header(
@@ -214,7 +212,7 @@ class MakerWorldImporter : BaseImporter() {
                             modelId,
                             fileType,
                             instanceFilenamePrefix + fileFullName,
-                            if (fileType == ModelFileType.various) counters.right++ else counters.left++,
+                            if (fileType == ModelFileType.various) counters.various++ else counters.model++,
                         )
                         // TODO
                         // The current solution is to just store the zip
@@ -224,14 +222,14 @@ class MakerWorldImporter : BaseImporter() {
                     }
 
                     is Result.Failure<*> -> {
-                        /* Not handled */
-                        println("Error: ${response.statusCode} ${response.responseMessage}")
-                        println("Error: ${result.getException()}")
-                        println("Error: ${request.url}")
-                        println("Error: ${request.headers}")
-                        println("Error: ${request.parameters}")
-                        println("Error: ${request.body}")
-                        println("Error: ${request.executionOptions}")
+                        logger.error(
+                            "MakerWorld download failed: {} {} - URL: {}",
+                            response.statusCode,
+                            response.responseMessage,
+                            request.url,
+                        )
+                        logger.debug("Request details - Headers: {}, Params: {}", request.headers, request.parameters)
+                        logger.debug("Exception: ", result.getException())
                     }
                 }
             }
