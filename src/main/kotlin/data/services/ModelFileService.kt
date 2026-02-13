@@ -9,8 +9,8 @@ import data.dto.FileWithMimeType
 import net.lingala.zip4j.ZipFile
 import net.lingala.zip4j.model.ZipParameters
 import storage.Storage
-import utils.randomAlphanumeric
 import storage.exception.TargetFileAlreadyExistsException
+import utils.randomAlphanumeric
 import utils.thumbnail.ThumbnailService
 import java.io.File
 import java.io.FileInputStream

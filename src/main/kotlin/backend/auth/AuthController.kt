@@ -53,9 +53,16 @@ class AuthController @Inject constructor(
 
         try {
             emailService.sendVerificationEmail(body.email, body.name, token, baseUrl)
-            ServerMessage("REGISTRATION_SUCCESS", "Registration successful. Please check your email to verify your account.").send(ctx, 201)
+            ServerMessage(
+                "REGISTRATION_SUCCESS",
+                "Registration successful. Please check your email to verify your account.",
+            ).send(ctx, 201)
         } catch (e: Exception) {
-            ServerMessage("EMAIL_SEND_FAILED", "Registration successful but failed to send verification email. Please request a new verification email.").send(ctx, 201)
+            ServerMessage(
+                "EMAIL_SEND_FAILED",
+                "Registration successful but failed to send verification email." +
+                    "Please request a new verification email.",
+            ).send(ctx, 201)
         }
     }
 }
