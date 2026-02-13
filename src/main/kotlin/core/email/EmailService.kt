@@ -1,4 +1,4 @@
-package utils
+package core.email
 
 import com.google.inject.Inject
 import com.google.inject.Singleton

@@ -1,12 +1,12 @@
 package backend.auth
 
 import com.google.inject.Inject
+import core.email.EmailService
 import core.javalin.userId
 import data.dto.ServerMessage
 import data.services.EmailVerificationService
 import data.services.UserService
 import io.javalin.http.Context
-import utils.EmailService
 
 class VerificationController @Inject constructor(
     private val emailVerificationService: EmailVerificationService,

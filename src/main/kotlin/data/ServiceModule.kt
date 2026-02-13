@@ -1,5 +1,6 @@
 package data
 
+import core.email.EmailService
 import data.services.AccessService
 import data.services.CollectionService
 import data.services.EmailVerificationService
@@ -12,7 +13,6 @@ import data.services.SessionsService
 import data.services.UserService
 import data.services.UserSettingsService
 import dev.misfitlabs.kotlinguice4.KotlinModule
-import utils.EmailService
 import utils.thumbnail.ThumbnailService
 
 object ServiceModule : KotlinModule() {

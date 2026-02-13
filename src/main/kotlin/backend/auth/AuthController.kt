@@ -1,6 +1,7 @@
 package backend.auth
 
 import com.google.inject.Inject
+import core.email.EmailService
 import data.dto.LoginDto
 import data.dto.RegisterDto
 import data.dto.ServerMessage
@@ -9,7 +10,6 @@ import data.services.SessionsService
 import data.services.UserService
 import io.javalin.http.Context
 import io.javalin.http.bodyAsClass
-import utils.EmailService
 
 class AuthController @Inject constructor(
     private val sessionsService: SessionsService,
