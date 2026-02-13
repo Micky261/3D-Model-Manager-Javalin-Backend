@@ -1,21 +1,22 @@
 package data.importer
 
 import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.module.kotlin.readValue
-import com.github.kittinunf.fuel.Fuel
-import com.github.kittinunf.result.Result
-import core.config.JacksonModule
+import core.httpclient.HttpClient
 import data.bean.FileType
 import data.bean.Model
 import data.bean.ModelFileType
 import data.bean.ModelTag
 import data.dto.UserSettingKey
 import io.javalin.http.FailedDependencyResponse
+import io.ktor.client.call.body
+import io.ktor.client.request.get
+import io.ktor.client.request.headers
+import io.ktor.http.isSuccess
+import kotlinx.coroutines.runBlocking
 import utils.getBoolean
 import utils.getFilenameWithExtensionFromUrl
 import utils.getLong
 import utils.getText
-import utils.ua
 
 class MakerWorldImporter : BaseImporter() {
     private data class FileCounters(var model: Long = 1L, var various: Long = 1L)
@@ -44,10 +45,11 @@ class MakerWorldImporter : BaseImporter() {
             throw FailedDependencyResponse("MakerWorldSessionToken is not set")
         }
 
-        val (_, _, responseMetadata) = Fuel.get(modelUrl).ua()
-            .header("Host", "makerworld.com")
-            .responseString()
-        val metadata: JsonNode = JacksonModule.mapper.readValue<JsonNode>(responseMetadata.get())
+        val metadata: JsonNode = runBlocking {
+            HttpClient.instance.get(modelUrl) {
+                headers { append("Host", "makerworld.com") }
+            }.body()
+        }
 
         val model = Model(
             -1,
@@ -188,53 +190,47 @@ class MakerWorldImporter : BaseImporter() {
         modelId: Long,
         counters: FileCounters,
         instanceFilenamePrefix: String = "",
-    ): FileCounters {
-        Fuel.get(downloadUrl).ua()
-            .header("Host", "makerworld.com")
-            .header(
-                "Cookie",
-                "token=${userSettingsService.getSetting(userId, UserSettingKey.MakerWorldSessionToken)!!.value}",
-            ).responseString { request, response, result ->
-                when (result) {
-                    is Result.Success<*> -> {
-                        val download = JacksonModule.mapper.readValue<JsonNode>(result.get())
-                        val fileFullName = download.getText("url").getFilenameWithExtensionFromUrl()
-                        val fileType =
-                            if (FileType.getFileExtension(fileFullName) == "zip") {
-                                ModelFileType.various
-                            } else {
-                                ModelFileType.model
-                            }
+    ): FileCounters = runBlocking {
+        val token = userSettingsService.getSetting(userId, UserSettingKey.MakerWorldSessionToken)!!.value
 
-                        storeFile(
-                            download.getText("url"),
-                            userId,
-                            modelId,
-                            fileType,
-                            instanceFilenamePrefix + fileFullName,
-                            if (fileType == ModelFileType.various) counters.various++ else counters.model++,
-                        )
-                        // TODO
-                        // The current solution is to just store the zip
-                        // In future it could be automatically unzipped, but folder levels should be taken into account
-                        // as duplicate files might change and folder names might contain relevant information
-                        //   unzipDownload(zipDownloadUrl, userId, modelId)
-                    }
+        val response = HttpClient.instance.get(downloadUrl) {
+            headers {
+                append("Host", "makerworld.com")
+                append("Cookie", "token=$token")
+            }
+        }
 
-                    is Result.Failure<*> -> {
-                        logger.error(
-                            "MakerWorld download failed: {} {} - URL: {}",
-                            response.statusCode,
-                            response.responseMessage,
-                            request.url,
-                        )
-                        logger.debug("Request details - Headers: {}, Params: {}", request.headers, request.parameters)
-                        logger.debug("Exception: ", result.getException())
-                    }
-                }
+        if (response.status.isSuccess()) {
+            val download: JsonNode = response.body()
+            val fileFullName = download.getText("url").getFilenameWithExtensionFromUrl()
+            val fileType = if (FileType.getFileExtension(fileFullName) == "zip") {
+                ModelFileType.various
+            } else {
+                ModelFileType.model
             }
 
-        return counters
+            storeFile(
+                download.getText("url"),
+                userId,
+                modelId,
+                fileType,
+                instanceFilenamePrefix + fileFullName,
+                if (fileType == ModelFileType.various) counters.various++ else counters.model++,
+            )
+            // TODO
+            // The current solution is to just store the zip
+            // In future it could be automatically unzipped, but folder levels should be taken into account
+            // as duplicate files might change and folder names might contain relevant information
+            //   unzipDownload(zipDownloadUrl, userId, modelId)
+        } else {
+            logger.error(
+                "MakerWorld download failed: {} - URL: {}",
+                response.status,
+                downloadUrl,
+            )
+        }
+
+        counters
     }
 
     private fun filamentToString(filament: JsonNode): String = filament.getText("type") + ", " +

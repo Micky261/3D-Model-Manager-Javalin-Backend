@@ -1,11 +1,11 @@
 package data.importer
 
 import com.fasterxml.jackson.databind.JsonNode
-import com.github.kittinunf.fuel.Fuel
 import com.google.inject.Guice
 import com.google.inject.Injector
 import core.BackendModule
 import core.config.AppConfig
+import core.httpclient.HttpClient
 import data.bean.ModelFile
 import data.bean.ModelFileType
 import data.services.ModelFileService
@@ -14,6 +14,9 @@ import data.services.ModelTagsService
 import data.services.UserSettingsService
 import dev.misfitlabs.kotlinguice4.getInstance
 import io.github.furstenheim.CopyDown
+import io.ktor.client.request.get
+import io.ktor.client.statement.readRawBytes
+import kotlinx.coroutines.runBlocking
 import net.lingala.zip4j.io.inputstream.ZipInputStream
 import org.slf4j.Logger
 import storage.Storage
@@ -31,7 +34,7 @@ abstract class BaseImporter {
         private val modelFileService = injector.getInstance<ModelFileService>()
         val logger: Logger = injector.getInstance()
 
-        const val USER_AGENT = "3DMM-bot/1.0"
+        const val USER_AGENT = HttpClient.USER_AGENT
 
         fun isEnabled(importer: ImportSource): Boolean = getEnabledImporters().contains(importer)
 
@@ -68,14 +71,13 @@ abstract class BaseImporter {
             type: ModelFileType,
             filename: String,
             position: Long,
-        ) {
-            val body = Fuel.get(downloadUrl).response().second
-            val size = body.data.size.toLong()
-            // println("$downloadUrl ${body.contentLength} ${body.data.size} ${body.data[1]}")
+        ) = runBlocking {
+            val body = HttpClient.instance.get(downloadUrl).readRawBytes()
+            val size = body.size.toLong()
 
             val storage = Storage.getRandomStorageClass(size)
             val targetFilePath = storage.getUserFileTypePath(userId, modelId, type)
-            storage.uploadFile(body.data.inputStream(), targetFilePath, filename)
+            storage.uploadFile(body.inputStream(), targetFilePath, filename)
             modelFileService.insertModelFile(
                 ModelFile(-1, storage.storageConfig.name, userId, modelId, type, filename, position, size),
             )
@@ -101,11 +103,10 @@ abstract class BaseImporter {
         }
 
         // Must verify before that it is a zip file!
-        fun unzipDownload(downloadUrl: String, userId: Long, modelId: Long) {
-            val body = Fuel.get(downloadUrl).response().second
-            val size = body.data.size.toLong()
+        fun unzipDownload(downloadUrl: String, userId: Long, modelId: Long) = runBlocking {
+            val body = HttpClient.instance.get(downloadUrl).readRawBytes()
 
-            val zipIS = ZipInputStream(body.data.inputStream())
+            val zipIS = ZipInputStream(body.inputStream())
             var file = zipIS.nextEntry
             while (file != null) {
                 val filename = file.fileName

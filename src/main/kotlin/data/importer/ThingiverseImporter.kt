@@ -1,13 +1,15 @@
 package data.importer
 
 import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.module.kotlin.readValue
-import com.github.kittinunf.fuel.Fuel
-import core.config.JacksonModule
+import core.httpclient.HttpClient
 import data.bean.Model
 import data.bean.ModelFileType
 import data.bean.ModelTag
-import utils.authToken
+import io.ktor.client.call.body
+import io.ktor.client.request.get
+import io.ktor.client.request.headers
+import io.ktor.http.HttpHeaders
+import kotlinx.coroutines.runBlocking
 import utils.getText
 
 class ThingiverseImporter : BaseImporter() {
@@ -17,9 +19,11 @@ class ThingiverseImporter : BaseImporter() {
         val id = args["id"]
         val personalApiKey = config.config.importer.thingiverse?.apiKey ?: ""
 
-        val (_, _, responseMetadata) = Fuel.get(baseUrl + "things/$id")
-            .authToken(personalApiKey).responseString()
-        val metadata: JsonNode = JacksonModule.mapper.readValue<JsonNode>(responseMetadata.get())
+        val metadata: JsonNode = runBlocking {
+            HttpClient.instance.get(baseUrl + "things/$id") {
+                headers { append(HttpHeaders.Authorization, "Token $personalApiKey") }
+            }.body()
+        }
 
         val model = Model(
             -1,
@@ -45,16 +49,13 @@ class ThingiverseImporter : BaseImporter() {
             this.modelTagsService.insert(modelTag)
         }
 
-        val (_, _, imageLinksResponse) = Fuel.get(baseUrl + "things/$id/images")
-            .authToken(personalApiKey).responseString()
+        val imageLinks: JsonNode = runBlocking {
+            HttpClient.instance.get(baseUrl + "things/$id/images") {
+                headers { append(HttpHeaders.Authorization, "Token $personalApiKey") }
+            }.body()
+        }
 
-        // metadata.get("zip_data").get("images").forEachIndexed { index, image ->
-//            Idea to take the more readable filename
-//            val nameSplit= image.getText("name").split(".")
-//            val nameContainsExtension = nameSplit.count() > 1 && nameSplit.last().length in 3..4
-//            val name = if (name)
-
-        JacksonModule.mapper.readValue<JsonNode>(imageLinksResponse.get()).forEachIndexed { index, fileDownloadLink ->
+        imageLinks.forEachIndexed { index, fileDownloadLink ->
             val filename = fileDownloadLink.getText("name")
 
             fileDownloadLink.get("sizes")

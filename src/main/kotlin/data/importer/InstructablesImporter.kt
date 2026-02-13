@@ -1,13 +1,15 @@
 package data.importer
 
 import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.module.kotlin.readValue
-import com.github.kittinunf.fuel.Fuel
-import core.config.JacksonModule
+import core.httpclient.HttpClient
 import data.bean.FileType
 import data.bean.Model
 import data.bean.ModelFileType
-import utils.authToken
+import io.ktor.client.call.body
+import io.ktor.client.request.get
+import io.ktor.client.request.headers
+import io.ktor.http.HttpHeaders
+import kotlinx.coroutines.runBlocking
 import utils.getText
 
 class InstructablesImporter : BaseImporter() {
@@ -17,9 +19,11 @@ class InstructablesImporter : BaseImporter() {
         val id = args["id"]
         val personalApiKey = config.config.importer.thingiverse?.apiKey ?: ""
 
-        val (_, _, responseMetadata) = Fuel.get(baseUrl + "getFiles?instructableId=" + id)
-            .authToken(personalApiKey).responseString()
-        val metadata: JsonNode = JacksonModule.mapper.readValue<JsonNode>(responseMetadata.get())
+        val metadata: JsonNode = runBlocking {
+            HttpClient.instance.get(baseUrl + "getFiles?instructableId=" + id) {
+                headers { append(HttpHeaders.Authorization, "Token $personalApiKey") }
+            }.body()
+        }
 
         val model = Model(
             -1,

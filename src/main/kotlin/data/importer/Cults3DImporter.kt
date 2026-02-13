@@ -1,18 +1,23 @@
 package data.importer
 
 import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.module.kotlin.readValue
-import com.github.kittinunf.fuel.Fuel
-import com.github.kittinunf.fuel.core.extensions.authentication
-import com.github.kittinunf.fuel.core.extensions.jsonBody
-import core.config.JacksonModule
+import core.httpclient.HttpClient
 import data.bean.FileType
 import data.bean.Model
 import data.bean.ModelFileType
 import data.bean.ModelTag
 import io.javalin.http.FailedDependencyResponse
+import io.ktor.client.call.body
+import io.ktor.client.request.headers
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
+import io.ktor.http.contentType
+import kotlinx.coroutines.runBlocking
 import utils.getFilenameWithExtensionFromUrl
 import utils.getText
+import java.util.Base64
 
 /**
  * This Importer is currently restricted to importing metadata only as order processes and downloads
@@ -54,10 +59,15 @@ class Cults3DImporter : BaseImporter() {
 //        println(orderLine)
 
         // Get metadata of model
-        val profileQuery = objectQuery.format(slug)
-        val (_, _, responseMetadata) = Fuel.post(graphqlUrl).jsonBody(profileQuery)
-            .authentication().basic(username, password).responseString()
-        val metadata = JacksonModule.mapper.readValue<JsonNode>(responseMetadata.get()).get("data").get("creation")
+        val profileQueryBody = objectQuery.format(slug)
+        val basicAuth = Base64.getEncoder().encodeToString("$username:$password".toByteArray())
+        val metadata: JsonNode = runBlocking {
+            HttpClient.instance.post(graphqlUrl) {
+                contentType(ContentType.Application.Json)
+                setBody(profileQueryBody)
+                headers { append(HttpHeaders.Authorization, "Basic $basicAuth") }
+            }.body<JsonNode>().get("data").get("creation")
+        }
 
         // Process metadata
         val model = Model(

@@ -62,9 +62,11 @@ dependencies {
     implementation group: "org.flywaydb", name: "flyway-core", version: "11.10.2"
     implementation group: "org.flywaydb", name: "flyway-mysql", version: "11.10.2"
 
-    implementation group: "com.github.kittinunf.fuel", name: "fuel", version: "2.3.1"
-    implementation group: "com.github.kittinunf.fuel", name: "fuel-jackson", version: "2.3.1"
-    implementation group: "com.github.kittinunf.fuel", name: "fuel-coroutines", version: "2.3.1"
+    def ktorVersion = "3.0.3"
+    implementation group: "io.ktor", name: "ktor-client-core", version: "$ktorVersion"
+    implementation group: "io.ktor", name: "ktor-client-cio", version: "$ktorVersion"
+    implementation group: "io.ktor", name: "ktor-client-content-negotiation", version: "$ktorVersion"
+    implementation group: "io.ktor", name: "ktor-serialization-jackson", version: "$ktorVersion"
     implementation group: "com.github.lookfirst", name: "sardine", version: "5.13"
     implementation group: "org.jsoup", name: "jsoup", version: "1.21.1"
 

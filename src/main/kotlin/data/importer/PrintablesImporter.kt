@@ -1,16 +1,18 @@
 package data.importer
 
 import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.module.kotlin.readValue
-import com.github.kittinunf.fuel.Fuel
-import com.github.kittinunf.fuel.core.extensions.jsonBody
-import core.config.JacksonModule
+import core.httpclient.HttpClient
 import data.bean.Model
 import data.bean.ModelFileType
 import data.bean.ModelTag
 import io.javalin.http.BadRequestResponse
+import io.ktor.client.call.body
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import io.ktor.http.ContentType
+import io.ktor.http.contentType
+import kotlinx.coroutines.runBlocking
 import utils.getText
-import utils.ua
 
 class PrintablesImporter : BaseImporter() {
     private val modelBaseUrl = "https://www.printables.com/model/"
@@ -30,11 +32,14 @@ class PrintablesImporter : BaseImporter() {
     override fun import(userId: Long, args: Map<String, String>): Long {
         val id = args["id"]?.toLong() ?: throw BadRequestResponse()
 
-        val profileQuery = profileQuery.format(id)
+        val profileQueryBody = profileQuery.format(id)
 
-        val (_, _, responseMetadata) = Fuel.post(graphqlUrl).jsonBody(profileQuery).ua().responseString()
-        val metadata: JsonNode = JacksonModule.mapper.readValue<JsonNode>(responseMetadata.get())
-            .get("data").get("print")
+        val metadata: JsonNode = runBlocking {
+            HttpClient.instance.post(graphqlUrl) {
+                contentType(ContentType.Application.Json)
+                setBody(profileQueryBody)
+            }.body<JsonNode>().get("data").get("print")
+        }
 
         val model = Model(
             -1,
@@ -116,11 +121,13 @@ class PrintablesImporter : BaseImporter() {
         return modelId
     }
 
-    private fun getDownloadUrl(type: String, fileId: Long, modelId: Long): String {
-        val downloadQuery = downloadQuery.format(type, fileId, modelId)
+    private fun getDownloadUrl(type: String, fileId: Long, modelId: Long): String = runBlocking {
+        val downloadQueryBody = downloadQuery.format(type, fileId, modelId)
 
-        val (_, _, responseMetadata) = Fuel.post(graphqlUrl).jsonBody(downloadQuery).ua().responseString()
-        return JacksonModule.mapper.readValue<JsonNode>(responseMetadata.get())
-            .get("data").get("getDownloadLink").get("output").getText("link")
+        val response: JsonNode = HttpClient.instance.post(graphqlUrl) {
+            contentType(ContentType.Application.Json)
+            setBody(downloadQueryBody)
+        }.body()
+        response.get("data").get("getDownloadLink").get("output").getText("link")
     }
 }

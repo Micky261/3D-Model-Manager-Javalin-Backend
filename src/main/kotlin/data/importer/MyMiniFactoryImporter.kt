@@ -1,14 +1,17 @@
 package data.importer
 
 import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.module.kotlin.readValue
-import com.github.kittinunf.fuel.Fuel
-import core.config.JacksonModule
+import core.httpclient.HttpClient
 import data.bean.Model
 import data.bean.ModelFileType
 import data.bean.ModelTag
 import io.javalin.http.BadRequestResponse
-import utils.authToken
+import io.ktor.client.call.body
+import io.ktor.client.request.get
+import io.ktor.client.request.headers
+import io.ktor.client.request.parameter
+import io.ktor.http.HttpHeaders
+import kotlinx.coroutines.runBlocking
 import utils.getText
 
 class MyMiniFactoryImporter : BaseImporter() {
@@ -19,9 +22,12 @@ class MyMiniFactoryImporter : BaseImporter() {
         val id = args["id"]?.toLong() ?: throw BadRequestResponse()
         val personalApiKey = config.config.importer.myminifactory?.apiKey ?: ""
 
-        val (_, _, responseMetadata) = Fuel.get(baseUrl + "objects/$id", listOf("key" to personalApiKey))
-            .authToken(personalApiKey).responseString()
-        val metadata: JsonNode = JacksonModule.mapper.readValue<JsonNode>(responseMetadata.get())
+        val metadata: JsonNode = runBlocking {
+            HttpClient.instance.get(baseUrl + "objects/$id") {
+                parameter("key", personalApiKey)
+                headers { append(HttpHeaders.Authorization, "Token $personalApiKey") }
+            }.body()
+        }
 
         val model = Model(
             -1,

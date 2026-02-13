@@ -2,14 +2,16 @@ package data.importer
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.module.kotlin.readValue
-import com.github.kittinunf.fuel.Fuel
-import core.config.JacksonModule
+import core.httpclient.HttpClient
 import data.bean.FileType
 import data.bean.Model
 import data.bean.ModelFileType
 import data.bean.ModelTag
-import utils.authToken
+import io.ktor.client.call.body
+import io.ktor.client.request.get
+import io.ktor.client.request.headers
+import io.ktor.http.HttpHeaders
+import kotlinx.coroutines.runBlocking
 import utils.getFilenameWithExtensionFromUrl
 import utils.getText
 
@@ -32,9 +34,11 @@ class SketchfabImporter : BaseImporter() {
         val id = args["id"]
         val personalApiKey = config.config.importer.sketchfab?.apiKey ?: ""
 
-        val (_, _, responseMetadata) = Fuel.get(baseUrl + "models/$id")
-            .authToken(personalApiKey).responseString()
-        val metadata = JacksonModule.mapper.readValue<Metadata>(responseMetadata.get())
+        val metadata: Metadata = runBlocking {
+            HttpClient.instance.get(baseUrl + "models/$id") {
+                headers { append(HttpHeaders.Authorization, "Token $personalApiKey") }
+            }.body()
+        }
 
         val model = Model(
             -1,
@@ -70,10 +74,11 @@ class SketchfabImporter : BaseImporter() {
         }
 
         if (metadata.isDownloadable) {
-            val (_, _, responseDownloadLink) = Fuel.get(baseUrl + "models/$id/download")
-                .authToken(personalApiKey).responseString()
-
-            val downloadLinks: JsonNode = JacksonModule.mapper.readValue<JsonNode>(responseDownloadLink.get())
+            val downloadLinks: JsonNode = runBlocking {
+                HttpClient.instance.get(baseUrl + "models/$id/download") {
+                    headers { append(HttpHeaders.Authorization, "Token $personalApiKey") }
+                }.body()
+            }
 
             downloadLinks.forEachIndexed { index, archiveLink ->
                 val filename = archiveLink.getText("url").getFilenameWithExtensionFromUrl()
