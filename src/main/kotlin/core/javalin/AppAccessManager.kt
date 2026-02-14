@@ -1,10 +1,12 @@
 package core.javalin
 
 import com.google.inject.Inject
+import data.bean.AppRight
 import data.dto.ServerMessage
 import data.services.AccessService
 import data.services.SessionsService
 import io.javalin.http.Context
+import io.javalin.http.ForbiddenResponse
 import io.javalin.http.InternalServerErrorResponse
 import io.javalin.http.UnauthorizedResponse
 import io.javalin.http.pathParamAsClass
@@ -20,7 +22,9 @@ class AppAccessManager @Inject constructor(
         when {
             routeRoles.isEmpty() || routeRoles == setOf(JavalinRole.Unauthorized) -> return
 
-            routeRoles.intersect(setOf(JavalinRole.Authorized, JavalinRole.ModelOwnerOnly)).isNotEmpty() -> {
+            routeRoles.intersect(
+                setOf(JavalinRole.Authorized, JavalinRole.ModelOwnerOnly, JavalinRole.AdminOnly),
+            ).isNotEmpty() -> {
                 val sessionId = ctx.queryParamAsClass<String>("3DMM_Session").get()
                 val session = sessionsService.get(sessionId)
 
@@ -28,6 +32,14 @@ class AppAccessManager @Inject constructor(
                     ctx.attribute("session", session)
                     ctx.attribute("sessionId", session.sessionId)
                     ctx.attribute("userId", session.userId)
+
+                    if (JavalinRole.AdminOnly in routeRoles && AppRight.Admin !in session.rightsList) {
+                        ServerMessage(
+                            "FORBIDDEN",
+                            "You do not have permission to access this resource",
+                        ).send(ctx, 403)
+                        throw ForbiddenResponse()
+                    }
 
                     if (routeRoles == setOf(JavalinRole.ModelOwnerOnly)) {
                         val modelId = ctx.pathParamAsClass<Long>("modelId").get()

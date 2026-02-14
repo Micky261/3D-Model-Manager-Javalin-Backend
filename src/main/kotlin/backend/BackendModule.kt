@@ -1,5 +1,6 @@
 package backend
 
+import backend.admin.AdminModule
 import backend.auth.AuthModule
 import backend.collections.CollectionModule
 import backend.files.FilesModule
@@ -13,6 +14,7 @@ import dev.misfitlabs.kotlinguice4.KotlinModule
 
 object BackendModule : KotlinModule() {
     override fun configure() {
+        install(AdminModule)
         install(AuthModule)
         install(CollectionModule)
         install(FilesModule)

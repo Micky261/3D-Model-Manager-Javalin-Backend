@@ -17,13 +17,24 @@ interface SessionsDao {
     )
 
     @SqlUpdate(
-        """        
+        """
             INSERT INTO sessions (user_id, session_id) VALUES (:userId, :sessionId)
         """,
     )
     fun insert(
         @Bind("userId") userId: Long,
         @Bind("sessionId") sessionId: String,
+    )
+
+    @SqlUpdate(
+        """
+            INSERT INTO sessions (user_id, session_id, rights) VALUES (:userId, :sessionId, :rights)
+        """,
+    )
+    fun insert(
+        @Bind("userId") userId: Long,
+        @Bind("sessionId") sessionId: String,
+        @Bind("rights") rights: String?,
     )
 
     @SqlQuery(

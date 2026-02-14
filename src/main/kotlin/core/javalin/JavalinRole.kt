@@ -12,4 +12,7 @@ enum class JavalinRole : RouteRole {
     // Authorized user, additional check that the requested model information/file is owned by the user
     // Path must contain "modelId" parameter
     ModelOwnerOnly,
+
+    // Authorized user with Admin right
+    AdminOnly,
 }

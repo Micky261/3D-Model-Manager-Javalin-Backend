@@ -12,6 +12,7 @@ object AuthModule : ControllerModule() {
             path("") {
                 post("login", controller::login)
                 post("register", controller::register)
+                get("registration-info", controller::getRegistrationInfo)
             }
         }
 

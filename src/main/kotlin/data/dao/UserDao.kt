@@ -31,4 +31,10 @@ interface UserDao {
 
     @SqlUpdate("DELETE FROM users WHERE id = :id AND email_verified_at IS NULL")
     fun deleteUnverifiedUser(@Bind("id") id: Long): Int
+
+    @SqlUpdate("UPDATE users SET rights = :rights WHERE id = :id")
+    fun updateRights(@Bind("id") id: Long, @Bind("rights") rights: String?)
+
+    @SqlQuery("SELECT COUNT(*) FROM users")
+    fun count(): Long
 }

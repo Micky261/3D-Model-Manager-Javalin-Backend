@@ -2,7 +2,8 @@
     "general": {
         "enableCors": false,
         "baseDir": "",
-        "serverPort": "8261"
+        "serverPort": "8261",
+        "registrationMode": "open"
     },
     "database": {
         "db": "mysql",

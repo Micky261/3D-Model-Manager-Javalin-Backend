@@ -1,5 +1,8 @@
 root = true
 
+[*.json]
+indent_size = 4
+
 [*.{kt,kts}]
 ktlint_standard_filename = disabled
 ktlint_standard_package-name = disabled

@@ -17,6 +17,10 @@ class SessionsService @Inject constructor(
         sessionsDao.insert(userId, sessionId)
     }
 
+    fun insert(userId: Long, sessionId: String, rights: String?) {
+        sessionsDao.insert(userId, sessionId, rights)
+    }
+
     fun get(sessionId: String): Session? = sessionsDao.get(
         sessionId,
         Instant.now().minusSeconds(60L * 60L * 24L * 28L).epochSecond,
@@ -25,7 +29,7 @@ class SessionsService @Inject constructor(
     fun createSession(user: User): SessionDto {
         val sessionId = generateSessionId()
 
-        insert(user.id, sessionId)
+        insert(user.id, sessionId, user.rights)
 
         return SessionDto(sessionId)
     }

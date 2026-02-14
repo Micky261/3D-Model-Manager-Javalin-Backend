@@ -1,3 +1,5 @@
 package data.bean
 
-enum class AppRight
+enum class AppRight {
+    Admin,
+}

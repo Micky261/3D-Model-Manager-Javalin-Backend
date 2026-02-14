@@ -2,6 +2,7 @@ package data
 
 import data.dao.CollectionDao
 import data.dao.EmailVerificationDao
+import data.dao.InvitationTokenDao
 import data.dao.ModelDao
 import data.dao.ModelDaoClass
 import data.dao.ModelFileDao
@@ -16,6 +17,7 @@ object DaoModule : KotlinModule() {
     override fun configure() {
         bind<CollectionDao>().toProvider<CollectionDaoProvider>()
         bind<EmailVerificationDao>().toProvider<EmailVerificationDaoProvider>()
+        bind<InvitationTokenDao>().toProvider<InvitationTokenDaoProvider>()
         bind<ModelDao>().toProvider<ModelDaoProvider>()
         bind<ModelDaoClass>()
         bind<ModelFileDao>().toProvider<ModelFileDaoProvider>()

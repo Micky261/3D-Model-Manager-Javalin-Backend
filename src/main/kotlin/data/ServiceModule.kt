@@ -5,6 +5,7 @@ import data.services.AccessService
 import data.services.CollectionService
 import data.services.EmailVerificationService
 import data.services.ImportService
+import data.services.InvitationTokenService
 import data.services.ModelFileService
 import data.services.ModelLinkService
 import data.services.ModelService
@@ -21,6 +22,7 @@ object ServiceModule : KotlinModule() {
         bind<CollectionService>()
         bind<EmailVerificationService>()
         bind<ImportService>()
+        bind<InvitationTokenService>()
         bind<ModelService>()
         bind<ModelFileService>()
         bind<ModelLinkService>()

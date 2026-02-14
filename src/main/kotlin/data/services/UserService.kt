@@ -2,6 +2,7 @@ package data.services
 
 import at.favre.lib.crypto.bcrypt.BCrypt
 import com.google.inject.Inject
+import data.bean.AppRight
 import data.bean.User
 import data.dao.UserDao
 
@@ -34,4 +35,15 @@ class UserService @Inject constructor(
         plainPassword.toCharArray(),
         hashPassword,
     ).verified
+
+    fun hasAnyUsers(): Boolean = userDao.count() > 0
+
+    fun makeAdmin(userId: Long) {
+        userDao.updateRights(userId, AppRight.Admin.name)
+    }
+
+    fun isAdmin(userId: Long): Boolean {
+        val user = getById(userId) ?: return false
+        return user.isAdmin
+    }
 }

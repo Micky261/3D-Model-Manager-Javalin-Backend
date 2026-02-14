@@ -5,4 +5,5 @@ data class AppConfigGeneral(
     val corsAllowedHosts: List<String> = emptyList(),
     val baseDir: String,
     val serverPort: Int,
+    val registrationMode: RegistrationMode = RegistrationMode.Open,
 )
