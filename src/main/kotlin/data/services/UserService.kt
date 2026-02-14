@@ -31,10 +31,28 @@ class UserService @Inject constructor(
         plainPassword.toCharArray(),
     )
 
-    private fun verifyPassword(plainPassword: String, hashPassword: String): Boolean = BCrypt.verifyer().verify(
+    fun verifyPassword(plainPassword: String, hashPassword: String): Boolean = BCrypt.verifyer().verify(
         plainPassword.toCharArray(),
         hashPassword,
     ).verified
+
+    fun verifyPasswordForUser(userId: Long, plainPassword: String): Boolean {
+        val user = getById(userId) ?: return false
+        return verifyPassword(plainPassword, user.password)
+    }
+
+    fun changePassword(userId: Long, newPlainPassword: String) {
+        val hashedPassword = hashPassword(newPlainPassword)
+        userDao.updatePassword(userId, hashedPassword)
+    }
+
+    fun changeName(userId: Long, name: String) {
+        userDao.updateName(userId, name)
+    }
+
+    fun changeEmail(userId: Long, email: String) {
+        userDao.updateEmail(userId, email)
+    }
 
     fun hasAnyUsers(): Boolean = userDao.count() > 0
 

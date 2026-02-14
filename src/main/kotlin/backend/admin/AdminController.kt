@@ -1,6 +1,7 @@
 package backend.admin
 
 import com.google.inject.Inject
+import data.dto.CreateInvitationTokenRequest
 import data.dto.InvitationTokenDto
 import data.dto.ServerMessage
 import data.services.InvitationTokenService
@@ -21,8 +22,6 @@ class AdminController @Inject constructor(
         val tokens = invitationTokenService.getAll().map { InvitationTokenDto.from(it) }
         ctx.json(tokens)
     }
-
-    private data class CreateInvitationTokenRequest(val expiresInHours: Long? = null)
 
     fun createInvitationToken(ctx: Context) {
         val body = ctx.bodyAsClass<CreateInvitationTokenRequest>()

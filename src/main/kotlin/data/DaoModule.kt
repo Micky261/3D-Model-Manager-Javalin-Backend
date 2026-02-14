@@ -8,6 +8,7 @@ import data.dao.ModelDaoClass
 import data.dao.ModelFileDao
 import data.dao.ModelLinkDao
 import data.dao.ModelTagsDao
+import data.dao.PasswordResetDao
 import data.dao.SessionsDao
 import data.dao.UserDao
 import data.dao.UserSettingsDao
@@ -19,6 +20,7 @@ object DaoModule : KotlinModule() {
         bind<EmailVerificationDao>().toProvider<EmailVerificationDaoProvider>()
         bind<InvitationTokenDao>().toProvider<InvitationTokenDaoProvider>()
         bind<ModelDao>().toProvider<ModelDaoProvider>()
+        bind<PasswordResetDao>().toProvider<PasswordResetDaoProvider>()
         bind<ModelDaoClass>()
         bind<ModelFileDao>().toProvider<ModelFileDaoProvider>()
         bind<ModelLinkDao>().toProvider<ModelLinkDaoProvider>()

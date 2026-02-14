@@ -9,6 +9,7 @@ import data.dao.ModelDao
 import data.dao.ModelFileDao
 import data.dao.ModelLinkDao
 import data.dao.ModelTagsDao
+import data.dao.PasswordResetDao
 import data.dao.SessionsDao
 import data.dao.UserDao
 import data.dao.UserSettingsDao
@@ -73,4 +74,10 @@ class InvitationTokenDaoProvider @Inject constructor(
     private val jdbi: Jdbi,
 ) : Provider<InvitationTokenDao> {
     override fun get(): InvitationTokenDao = jdbi.onDemand()
+}
+
+class PasswordResetDaoProvider @Inject constructor(
+    private val jdbi: Jdbi,
+) : Provider<PasswordResetDao> {
+    override fun get(): PasswordResetDao = jdbi.onDemand()
 }

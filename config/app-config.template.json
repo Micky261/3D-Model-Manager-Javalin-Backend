@@ -3,7 +3,8 @@
         "enableCors": false,
         "baseDir": "",
         "serverPort": "8261",
-        "registrationMode": "open"
+        "registrationMode": "open",
+        "minPasswordLength": 8
     },
     "database": {
         "db": "mysql",

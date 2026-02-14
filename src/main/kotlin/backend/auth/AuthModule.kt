@@ -13,6 +13,8 @@ object AuthModule : ControllerModule() {
                 post("login", controller::login)
                 post("register", controller::register)
                 get("registration-info", controller::getRegistrationInfo)
+                post("request-password-reset", controller::requestPasswordReset)
+                post("reset-password", controller::resetPassword)
             }
         }
 

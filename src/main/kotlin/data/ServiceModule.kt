@@ -10,6 +10,7 @@ import data.services.ModelFileService
 import data.services.ModelLinkService
 import data.services.ModelService
 import data.services.ModelTagsService
+import data.services.PasswordResetService
 import data.services.SessionsService
 import data.services.UserService
 import data.services.UserSettingsService
@@ -24,6 +25,7 @@ object ServiceModule : KotlinModule() {
         bind<ImportService>()
         bind<InvitationTokenService>()
         bind<ModelService>()
+        bind<PasswordResetService>()
         bind<ModelFileService>()
         bind<ModelLinkService>()
         bind<ModelTagsService>()

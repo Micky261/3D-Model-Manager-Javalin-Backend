@@ -6,4 +6,5 @@ data class AppConfigGeneral(
     val baseDir: String,
     val serverPort: Int,
     val registrationMode: RegistrationMode = RegistrationMode.Open,
+    val minPasswordLength: Int = 8,
 )

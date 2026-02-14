@@ -92,4 +92,69 @@ class EmailService @Inject constructor(
             throw e
         }
     }
+
+    fun sendPasswordResetEmail(toEmail: String, resetToken: String, baseUrl: String) {
+        val mailConfig = appConfig.config.mail
+        val resetLink = "$baseUrl/password-reset/$resetToken"
+
+        val email = EmailBuilder.startingBlank()
+            .from(mailConfig.from_name, mailConfig.from_address)
+            .to(toEmail, toEmail)
+            .withSubject("Reset your password - 3D Model Manager")
+            .withHTMLText(
+                """
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                </head>
+                <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+                    <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+                        <h1 style="color: #2c3e50;">Password Reset - 3D Model Manager</h1>
+                        <p>Hello,</p>
+                        <p>We received a request to reset your password. Click the button below to reset your password:</p>
+                        <p style="text-align: center; margin: 30px 0;">
+                            <a href="$resetLink"
+                               style="background-color: #007bff; color: white; padding: 12px 30px;
+                                      text-decoration: none; border-radius: 5px; display: inline-block;">
+                                Reset Password
+                            </a>
+                        </p>
+                        <p>Or copy and paste this link into your browser:</p>
+                        <p style="word-break: break-all; color: #666;">$resetLink</p>
+                        <p>This link will expire in 1 hour.</p>
+                        <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+                        <p style="color: #666; font-size: 12px;">
+                            If you did not request a password reset, please ignore this email.
+                        </p>
+                    </div>
+                </body>
+                </html>
+                """.trimIndent(),
+            )
+            .withPlainText(
+                """
+                Password Reset - 3D Model Manager
+
+                Hello,
+
+                We received a request to reset your password. Please click the link below to reset your password:
+
+                $resetLink
+
+                This link will expire in 1 hour.
+
+                If you did not request a password reset, please ignore this email.
+                """.trimIndent(),
+            )
+            .buildEmail()
+
+        try {
+            mailer.sendMail(email)
+            logger.info("Password reset email sent to $toEmail")
+        } catch (e: Exception) {
+            logger.error("Failed to send password reset email to $toEmail", e)
+            throw e
+        }
+    }
 }

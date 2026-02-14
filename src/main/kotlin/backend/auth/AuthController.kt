@@ -5,10 +5,13 @@ import core.config.AppConfig
 import core.config.bean.RegistrationMode
 import core.email.EmailService
 import data.dto.LoginDto
+import data.dto.PasswordResetRequest
 import data.dto.RegisterDto
+import data.dto.ResetPasswordRequest
 import data.dto.ServerMessage
 import data.services.EmailVerificationService
 import data.services.InvitationTokenService
+import data.services.PasswordResetService
 import data.services.SessionsService
 import data.services.UserService
 import io.javalin.http.Context
@@ -21,6 +24,7 @@ class AuthController @Inject constructor(
     private val emailService: EmailService,
     private val appConfig: AppConfig,
     private val invitationTokenService: InvitationTokenService,
+    private val passwordResetService: PasswordResetService,
 ) {
     fun login(ctx: Context) {
         val body = ctx.bodyAsClass<LoginDto>()
@@ -102,5 +106,55 @@ class AuthController @Inject constructor(
                     "Please request a new verification email.",
             ).send(ctx, 201)
         }
+    }
+
+    fun requestPasswordReset(ctx: Context) {
+        val body = ctx.bodyAsClass<PasswordResetRequest>()
+        val user = userService.get(body.email)
+
+        if (user != null && user.emailVerifiedAt != null) {
+            val token = passwordResetService.createResetToken(body.email)
+            val baseUrl = ctx.header("Origin") ?: ctx.header("Referer")?.substringBefore("/forgot-password") ?: ""
+
+            try {
+                emailService.sendPasswordResetEmail(body.email, token, baseUrl)
+            } catch (_: Exception) {
+                // Silently ignore send failures to not leak information
+            }
+        }
+
+        // Always return 200 to prevent email enumeration
+        ServerMessage(
+            "PASSWORD_RESET_REQUESTED",
+            "If an account with this email exists, a reset email has been sent",
+        ).send(ctx, 200)
+    }
+
+    fun resetPassword(ctx: Context) {
+        val body = ctx.bodyAsClass<ResetPasswordRequest>()
+        val reset = passwordResetService.getByToken(body.token)
+
+        if (reset == null || !passwordResetService.isTokenValid(reset)) {
+            ServerMessage("INVALID_OR_EXPIRED_TOKEN", "The reset link is invalid or has expired").send(ctx, 400)
+            return
+        }
+
+        val user = userService.get(reset.email)
+        if (user == null) {
+            ServerMessage("INVALID_OR_EXPIRED_TOKEN", "The reset link is invalid or has expired").send(ctx, 400)
+            return
+        }
+
+        val minPasswordLength = appConfig.config.general.minPasswordLength
+        if (body.password.length < minPasswordLength) {
+            ServerMessage("PASSWORD_TOO_SHORT", "Password must be at least $minPasswordLength characters long")
+                .send(ctx, 400)
+            return
+        }
+
+        userService.changePassword(user.id, body.password)
+        passwordResetService.deleteByToken(body.token)
+
+        ServerMessage("PASSWORD_RESET_SUCCESS", "Your password has been reset successfully").send(ctx, 200)
     }
 }

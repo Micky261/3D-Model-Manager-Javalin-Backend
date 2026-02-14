@@ -6,6 +6,7 @@ import org.jdbi.v3.sqlobject.statement.GetGeneratedKeys
 import org.jdbi.v3.sqlobject.statement.SqlQuery
 import org.jdbi.v3.sqlobject.statement.SqlUpdate
 
+@Suppress("ComplexInterface")
 interface UserDao {
     @SqlUpdate(
         """
@@ -37,4 +38,13 @@ interface UserDao {
 
     @SqlQuery("SELECT COUNT(*) FROM users")
     fun count(): Long
+
+    @SqlUpdate("UPDATE users SET password = :password WHERE id = :id")
+    fun updatePassword(@Bind("id") id: Long, @Bind("password") password: String)
+
+    @SqlUpdate("UPDATE users SET name = :name WHERE id = :id")
+    fun updateName(@Bind("id") id: Long, @Bind("name") name: String)
+
+    @SqlUpdate("UPDATE users SET email = :email, email_verified_at = NULL WHERE id = :id")
+    fun updateEmail(@Bind("id") id: Long, @Bind("email") email: String)
 }

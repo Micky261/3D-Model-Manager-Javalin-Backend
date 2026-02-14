@@ -10,6 +10,10 @@ object ProfileModule : ControllerModule() {
     override fun configure() {
         route<ProfileController> { controller ->
             path("profile/") {
+                get("me", controller::getProfile, JavalinRole.Authorized)
+                post("change-password", controller::changePassword, JavalinRole.Authorized)
+                post("change-name", controller::changeName, JavalinRole.Authorized)
+                post("change-email", controller::changeEmail, JavalinRole.Authorized)
                 get("settings/accounts", controller::getSettingsAccounts, JavalinRole.Authorized)
                 post("settings/accounts", controller::setSettingsAccounts, JavalinRole.Authorized)
             }
