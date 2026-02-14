@@ -25,8 +25,12 @@ object StorageSize {
         val sizeList = capacityRegex.find(storage.capacity)?.groupValues ?: listOf(storage.capacity, storage.capacity)
 
         return when (sizeList.size) {
-            2 -> sizeList[1].toLong() // only first group matched (no unit)
-            3 -> sizeList[1].toLong() * unitToMagnitude(sizeList[2]) // first and second group matched
+            2 -> sizeList[1].toLong()
+
+            // only first group matched (no unit)
+            3 -> sizeList[1].toLong() * unitToMagnitude(sizeList[2])
+
+            // first and second group matched
             else -> 0 // unknown case
         }
     }

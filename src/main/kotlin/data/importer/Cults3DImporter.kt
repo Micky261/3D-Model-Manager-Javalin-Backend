@@ -116,7 +116,8 @@ class Cults3DImporter : BaseImporter() {
         }
 
         // Not possible due to CSRF token
-        /**        // Start an ordering process to gain model files
+        /*
+               // Start an ordering process to gain model files
          val (_, response, result) = Fuel.post(orderUrl + slug)
          .header(
          "Cookie",
@@ -131,7 +132,8 @@ class Cults3DImporter : BaseImporter() {
          println(response) */
 
         // Not possible due to CSRF token
-        /**        // Handle downloads
+        @Suppress("standard:kdoc")
+        /*        // Handle downloads
          var fileCounter = 1L
          orderLine.get("lines").forEach { line ->
 
