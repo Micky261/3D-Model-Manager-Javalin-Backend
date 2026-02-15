@@ -26,8 +26,10 @@ class VerificationController @Inject constructor(
         when (emailVerificationService.verifyEmail(token)) {
             VerifyResult.SUCCESS ->
                 ServerMessage(MessageCode.EmailVerified).send(ctx)
+
             VerifyResult.INVALID_TOKEN ->
                 ServerMessage(MessageCode.InvalidOrExpiredToken).send(ctx)
+
             VerifyResult.EMAIL_ALREADY_TAKEN ->
                 ServerMessage(MessageCode.EmailAlreadyTaken).send(ctx)
         }
