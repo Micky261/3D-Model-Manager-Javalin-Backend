@@ -56,6 +56,9 @@ enum class MessageCode(val httpStatus: Int) {
     // Admin
     TokenDeleted(200),
     TokenNotFound(404),
+    UserDeleted(200),
+    CannotDeleteSelf(400),
+    AdminEmailChanged(200),
 }
 
 data class ServerMessage(val messageCode: MessageCode) {

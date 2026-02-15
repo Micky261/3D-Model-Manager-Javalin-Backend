@@ -53,4 +53,10 @@ interface UserDao {
 
     @SqlUpdate("UPDATE users SET email = pending_email, pending_email = NULL WHERE id = :id")
     fun applyPendingEmail(@Bind("id") id: Long)
+
+    @SqlUpdate("UPDATE users SET email = :email, pending_email = NULL WHERE id = :id")
+    fun updateEmail(@Bind("id") id: Long, @Bind("email") email: String)
+
+    @SqlUpdate("DELETE FROM users WHERE id = :id")
+    fun delete(@Bind("id") id: Long)
 }

@@ -11,6 +11,7 @@ import data.dao.ModelTagsDao
 import data.dao.PasswordResetDao
 import data.dao.SessionsDao
 import data.dao.UserDao
+import data.dao.UserDaoClass
 import data.dao.UserSettingsDao
 import dev.misfitlabs.kotlinguice4.KotlinModule
 
@@ -27,6 +28,7 @@ object DaoModule : KotlinModule() {
         bind<ModelTagsDao>().toProvider<ModelTagsDaoProvider>()
         bind<SessionsDao>().toProvider<SessionsDaoProvider>()
         bind<UserDao>().toProvider<UserDaoProvider>()
+        bind<UserDaoClass>()
         bind<UserSettingsDao>().toProvider<UserSettingsDaoProvider>()
     }
 }

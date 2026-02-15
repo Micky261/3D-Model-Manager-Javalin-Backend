@@ -4,10 +4,17 @@ import at.favre.lib.crypto.bcrypt.BCrypt
 import com.google.inject.Inject
 import data.bean.AppRight
 import data.bean.User
+import data.dao.ModelFileDao
 import data.dao.UserDao
+import data.dao.UserDaoClass
+import data.dto.UserAdminDto
+import storage.Storage
+import utils.thumbnail.ThumbnailService
 
 class UserService @Inject constructor(
     private val userDao: UserDao,
+    private val userDaoClass: UserDaoClass,
+    private val modelFileDao: ModelFileDao,
 ) {
     fun insert(name: String, email: String, plainPassword: String): Long {
         val hashedPassword = hashPassword(plainPassword)
@@ -71,5 +78,21 @@ class UserService @Inject constructor(
     fun isAdmin(userId: Long): Boolean {
         val user = getById(userId) ?: return false
         return user.isAdmin
+    }
+
+    fun changeEmailAdmin(userId: Long, newEmail: String) {
+        userDao.updateEmail(userId, newEmail)
+    }
+
+    fun getAllWithStats(): List<UserAdminDto> = userDaoClass.getAllWithStats()
+
+    fun deleteUser(userId: Long) {
+        val files = modelFileDao.getFilesByUser(userId)
+        files.forEach { file ->
+            val storage = Storage.getStorageClassByName(file.storage)
+            storage.deleteFile(storage.getUserFilePath(file.userId, file.modelId, file.type, file.filename))
+            ThumbnailService.deleteThumbnails(file.userId, file.modelId, file.filename)
+        }
+        userDao.delete(userId)
     }
 }

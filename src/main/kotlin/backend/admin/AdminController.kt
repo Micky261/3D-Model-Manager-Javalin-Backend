@@ -1,6 +1,7 @@
 package backend.admin
 
 import com.google.inject.Inject
+import data.dto.AdminChangeEmailRequest
 import data.dto.CreateInvitationTokenRequest
 import data.dto.InvitationTokenDto
 import data.dto.MessageCode
@@ -38,5 +39,41 @@ class AdminController @Inject constructor(
         } else {
             ServerMessage(MessageCode.TokenNotFound).send(ctx)
         }
+    }
+
+    fun getUsers(ctx: Context) {
+        ctx.json(userService.getAllWithStats())
+    }
+
+    fun deleteUser(ctx: Context) {
+        val targetUserId = ctx.pathParam("userId").toLong()
+        val currentUserId = ctx.attribute<Long>("userId")!!
+
+        if (targetUserId == currentUserId) {
+            ServerMessage(MessageCode.CannotDeleteSelf).send(ctx)
+            return
+        }
+
+        userService.deleteUser(targetUserId)
+        ServerMessage(MessageCode.UserDeleted).send(ctx)
+    }
+
+    fun changeUserEmail(ctx: Context) {
+        val targetUserId = ctx.pathParam("userId").toLong()
+        val body = ctx.bodyAsClass<AdminChangeEmailRequest>()
+
+        if (userService.getById(targetUserId) == null) {
+            ServerMessage(MessageCode.UserNotFound).send(ctx)
+            return
+        }
+
+        val existingUser = userService.get(body.email)
+        if (existingUser != null && existingUser.id != targetUserId) {
+            ServerMessage(MessageCode.EmailAlreadyExists).send(ctx)
+            return
+        }
+
+        userService.changeEmailAdmin(targetUserId, body.email)
+        ServerMessage(MessageCode.AdminEmailChanged).send(ctx)
     }
 }
