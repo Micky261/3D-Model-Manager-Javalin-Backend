@@ -6,6 +6,7 @@ import core.javalin.userId
 import data.bean.FileType
 import data.bean.ModelFile
 import data.bean.ModelFileType
+import data.dto.MessageCode
 import data.dto.ServerMessage
 import data.services.ModelFileService
 import io.javalin.http.Context
@@ -91,7 +92,7 @@ class FilesController @Inject constructor(
         val modelExists = modelFileService.exists(userId, modelId, type, filename)
 
         if (modelExists && !forceOverwrite) {
-            ServerMessage("TargetAlreadyExists", "File already exists.").send(ctx, 409)
+            ServerMessage(MessageCode.TargetAlreadyExists).send(ctx)
         } else {
             val file = ctx.uploadedFile("file")
             val chunk = ctx.formParamAsClass<Int>("chunk").get()

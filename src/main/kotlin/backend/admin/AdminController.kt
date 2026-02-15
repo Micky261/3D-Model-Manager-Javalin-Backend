@@ -3,6 +3,7 @@ package backend.admin
 import com.google.inject.Inject
 import data.dto.CreateInvitationTokenRequest
 import data.dto.InvitationTokenDto
+import data.dto.MessageCode
 import data.dto.ServerMessage
 import data.services.InvitationTokenService
 import data.services.UserService
@@ -33,9 +34,9 @@ class AdminController @Inject constructor(
     fun deleteInvitationToken(ctx: Context) {
         val tokenId = ctx.pathParam("tokenId").toLong()
         if (invitationTokenService.delete(tokenId)) {
-            ServerMessage("TOKEN_DELETED", "Invitation token deleted").send(ctx, 200)
+            ServerMessage(MessageCode.TokenDeleted).send(ctx)
         } else {
-            ServerMessage("TOKEN_NOT_FOUND", "Invitation token not found").send(ctx, 404)
+            ServerMessage(MessageCode.TokenNotFound).send(ctx)
         }
     }
 }

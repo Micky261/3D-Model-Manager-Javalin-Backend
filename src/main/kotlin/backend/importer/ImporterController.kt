@@ -2,6 +2,7 @@ package backend.importer
 
 import com.google.inject.Inject
 import core.javalin.userId
+import data.dto.MessageCode
 import data.dto.ServerMessage
 import data.importer.BaseImporter
 import data.importer.ImportSource
@@ -27,14 +28,11 @@ class ImporterController @Inject constructor(
         } catch (e: FailedDependencyResponse) {
             // TODO: Translations in frontend need grammar check, Translation keys should match standard
             // TODO: Define own Exceptions as its used multiple times
-            ServerMessage("MISSING_SESSION_ID", "Cults SessionId is not set").send(ctx, 424)
+            ServerMessage(MessageCode.MissingSessionId).send(ctx)
         } catch (e: InternalServerErrorResponse) {
-            // TODO: Translations in frontend need grammar check, Translation keys should match standard
-            // TODO: Define own Exceptions as its used multiple times
-            ServerMessage("ORDER_FAILED", "Order request to Cults3d failed").send(ctx, 500)
+            ServerMessage(MessageCode.OrderFailed).send(ctx)
 //        } catch (e: Exception) {
-//            // TODO: Replace generic error
-//            ServerMessage("CONTACT_ADMIN", "Contact admin").send(ctx, 500)
+//            ServerMessage(MessageCode.ContactAdmin).send(ctx)
         }
     }
 

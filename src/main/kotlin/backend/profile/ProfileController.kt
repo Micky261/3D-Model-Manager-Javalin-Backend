@@ -7,6 +7,7 @@ import core.javalin.userId
 import data.dto.ChangeEmailRequest
 import data.dto.ChangeNameRequest
 import data.dto.ChangePasswordRequest
+import data.dto.MessageCode
 import data.dto.ServerMessage
 import data.dto.UserSettingDto
 import data.dto.UserSettingsType
@@ -39,7 +40,7 @@ class ProfileController @Inject constructor(
     fun getProfile(ctx: Context) {
         val user = userService.getById(ctx.userId())
         if (user == null) {
-            ServerMessage("USER_NOT_FOUND", "User not found").send(ctx, 404)
+            ServerMessage(MessageCode.UserNotFound).send(ctx)
             return
         }
         val profile = mutableMapOf<String, String>("name" to user.name, "email" to user.email)
@@ -53,37 +54,36 @@ class ProfileController @Inject constructor(
         val body = ctx.bodyAsClass<ChangePasswordRequest>()
 
         if (!userService.verifyPasswordForUser(ctx.userId(), body.currentPassword)) {
-            ServerMessage("WRONG_PASSWORD", "The current password is incorrect").send(ctx, 403)
+            ServerMessage(MessageCode.WrongPassword).send(ctx)
             return
         }
 
         val minPasswordLength = appConfig.config.general.minPasswordLength
         if (body.newPassword.length < minPasswordLength) {
-            ServerMessage("PASSWORD_TOO_SHORT", "Password must be at least $minPasswordLength characters long")
-                .send(ctx, 400)
+            ServerMessage(MessageCode.PasswordTooShort).send(ctx)
             return
         }
 
         userService.changePassword(ctx.userId(), body.newPassword)
-        ServerMessage("PASSWORD_CHANGED", "Your password has been changed successfully").send(ctx, 200)
+        ServerMessage(MessageCode.PasswordChanged).send(ctx)
     }
 
     fun changeName(ctx: Context) {
         val body = ctx.bodyAsClass<ChangeNameRequest>()
         userService.changeName(ctx.userId(), body.name)
-        ServerMessage("NAME_CHANGED", "Your name has been changed successfully").send(ctx, 200)
+        ServerMessage(MessageCode.NameChanged).send(ctx)
     }
 
     fun changeEmail(ctx: Context) {
         val body = ctx.bodyAsClass<ChangeEmailRequest>()
 
         if (!userService.verifyPasswordForUser(ctx.userId(), body.currentPassword)) {
-            ServerMessage("WRONG_PASSWORD", "The current password is incorrect").send(ctx, 403)
+            ServerMessage(MessageCode.WrongPassword).send(ctx)
             return
         }
 
         if (userService.emailExists(body.email)) {
-            ServerMessage("EMAIL_ALREADY_EXISTS", "An account with this email already exists").send(ctx, 409)
+            ServerMessage(MessageCode.EmailAlreadyExists).send(ctx)
             return
         }
 
@@ -99,6 +99,6 @@ class ProfileController @Inject constructor(
             // Email send failure is non-critical here
         }
 
-        ServerMessage("EMAIL_CHANGED", "Your email has been changed successfully").send(ctx, 200)
+        ServerMessage(MessageCode.EmailChanged).send(ctx)
     }
 }

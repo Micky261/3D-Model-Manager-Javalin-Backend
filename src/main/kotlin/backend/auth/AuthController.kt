@@ -5,6 +5,7 @@ import core.config.AppConfig
 import core.config.bean.RegistrationMode
 import core.email.EmailService
 import data.dto.LoginDto
+import data.dto.MessageCode
 import data.dto.PasswordResetRequest
 import data.dto.RegisterDto
 import data.dto.ResetPasswordRequest
@@ -32,12 +33,12 @@ class AuthController @Inject constructor(
         val user = userService.checkLogin(body.email, body.password)
         if (user != null) {
             if (user.emailVerifiedAt == null) {
-                ServerMessage("EMAIL_NOT_VERIFIED", "Please verify your email address first").send(ctx, 403)
+                ServerMessage(MessageCode.EmailNotVerified).send(ctx)
                 return
             }
             ctx.json(sessionsService.createSession(user))
         } else {
-            ServerMessage("LOGIN_ERROR", "Error on Login").send(ctx, 405)
+            ServerMessage(MessageCode.UserDataIncorrect).send(ctx)
         }
     }
 
@@ -51,31 +52,28 @@ class AuthController @Inject constructor(
         val isFirstUser = !userService.hasAnyUsers()
 
         if (registrationMode == RegistrationMode.Disabled && !isFirstUser) {
-            ServerMessage("REGISTRATION_DISABLED", "Registration is currently disabled").send(ctx, 403)
+            ServerMessage(MessageCode.RegistrationDisabled).send(ctx)
             return
         }
 
         if (registrationMode == RegistrationMode.Token && !isFirstUser) {
             if (body.invitationToken.isNullOrBlank()) {
-                ServerMessage("INVITATION_TOKEN_REQUIRED", "An invitation token is required to register").send(ctx, 403)
+                ServerMessage(MessageCode.InvitationTokenRequired).send(ctx)
                 return
             }
             if (invitationTokenService.validateToken(body.invitationToken) == null) {
-                ServerMessage(
-                    "INVALID_INVITATION_TOKEN",
-                    "The invitation token is invalid, expired, or has already been used",
-                ).send(ctx, 403)
+                ServerMessage(MessageCode.InvalidInvitationToken).send(ctx)
                 return
             }
         }
 
         if (body.name.isBlank() || body.email.isBlank() || body.password.isBlank()) {
-            ServerMessage("INVALID_INPUT", "Name, email and password are required").send(ctx, 400)
+            ServerMessage(MessageCode.InvalidInput).send(ctx)
             return
         }
 
         if (userService.emailExists(body.email)) {
-            ServerMessage("EMAIL_ALREADY_EXISTS", "An account with this email already exists").send(ctx, 409)
+            ServerMessage(MessageCode.EmailAlreadyExists).send(ctx)
             return
         }
 
@@ -95,16 +93,9 @@ class AuthController @Inject constructor(
 
         try {
             emailService.sendVerificationEmail(body.email, body.name, token, baseUrl)
-            ServerMessage(
-                "REGISTRATION_SUCCESS",
-                "Registration successful. Please check your email to verify your account.",
-            ).send(ctx, 201)
+            ServerMessage(MessageCode.RegistrationSuccess).send(ctx)
         } catch (e: Exception) {
-            ServerMessage(
-                "EMAIL_SEND_FAILED",
-                "Registration successful but failed to send verification email." +
-                    "Please request a new verification email.",
-            ).send(ctx, 201)
+            ServerMessage(MessageCode.EmailSendFailed).send(ctx, 201)
         }
     }
 
@@ -124,10 +115,7 @@ class AuthController @Inject constructor(
         }
 
         // Always return 200 to prevent email enumeration
-        ServerMessage(
-            "PASSWORD_RESET_REQUESTED",
-            "If an account with this email exists, a reset email has been sent",
-        ).send(ctx, 200)
+        ServerMessage(MessageCode.PasswordResetRequested).send(ctx)
     }
 
     fun resetPassword(ctx: Context) {
@@ -135,26 +123,25 @@ class AuthController @Inject constructor(
         val reset = passwordResetService.getByToken(body.token)
 
         if (reset == null || !passwordResetService.isTokenValid(reset)) {
-            ServerMessage("INVALID_OR_EXPIRED_TOKEN", "The reset link is invalid or has expired").send(ctx, 400)
+            ServerMessage(MessageCode.InvalidOrExpiredToken).send(ctx)
             return
         }
 
         val user = userService.get(reset.email)
         if (user == null) {
-            ServerMessage("INVALID_OR_EXPIRED_TOKEN", "The reset link is invalid or has expired").send(ctx, 400)
+            ServerMessage(MessageCode.InvalidOrExpiredToken).send(ctx)
             return
         }
 
         val minPasswordLength = appConfig.config.general.minPasswordLength
         if (body.password.length < minPasswordLength) {
-            ServerMessage("PASSWORD_TOO_SHORT", "Password must be at least $minPasswordLength characters long")
-                .send(ctx, 400)
+            ServerMessage(MessageCode.PasswordTooShort).send(ctx)
             return
         }
 
         userService.changePassword(user.id, body.password)
         passwordResetService.deleteByToken(body.token)
 
-        ServerMessage("PASSWORD_RESET_SUCCESS", "Your password has been reset successfully").send(ctx, 200)
+        ServerMessage(MessageCode.PasswordResetSuccess).send(ctx)
     }
 }

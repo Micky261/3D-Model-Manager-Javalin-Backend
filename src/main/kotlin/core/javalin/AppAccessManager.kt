@@ -2,6 +2,7 @@ package core.javalin
 
 import com.google.inject.Inject
 import data.bean.AppRight
+import data.dto.MessageCode
 import data.dto.ServerMessage
 import data.services.AccessService
 import data.services.SessionsService
@@ -34,10 +35,7 @@ class AppAccessManager @Inject constructor(
                     ctx.attribute("userId", session.userId)
 
                     if (JavalinRole.AdminOnly in routeRoles && AppRight.Admin !in session.rightsList) {
-                        ServerMessage(
-                            "FORBIDDEN",
-                            "You do not have permission to access this resource",
-                        ).send(ctx, 403)
+                        ServerMessage(MessageCode.Forbidden).send(ctx)
                         throw ForbiddenResponse()
                     }
 
@@ -46,12 +44,12 @@ class AppAccessManager @Inject constructor(
                         ctx.attribute("modelId", modelId)
 
                         if (!accessService.userOwnsModel(session.userId, modelId)) {
-                            ServerMessage("AUTH_ERROR", "Error on Auth").send(ctx, 405)
+                            ServerMessage(MessageCode.AuthError).send(ctx)
                             throw UnauthorizedResponse()
                         }
                     }
                 } else {
-                    ServerMessage("AUTH_ERROR", "Error on Auth").send(ctx, 405)
+                    ServerMessage(MessageCode.AuthError).send(ctx)
                     throw UnauthorizedResponse()
                 }
             }

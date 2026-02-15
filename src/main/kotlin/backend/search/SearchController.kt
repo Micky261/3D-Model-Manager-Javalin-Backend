@@ -2,6 +2,7 @@ package backend.search
 
 import com.google.inject.Inject
 import core.javalin.userId
+import data.dto.MessageCode
 import data.dto.ServerMessage
 import data.services.ModelService
 import io.javalin.http.Context
@@ -17,8 +18,7 @@ class SearchController @Inject constructor(
         if (searchFields.isNotEmpty()) {
             ctx.json(modelService.search(ctx.userId(), searchTerm, searchFields))
         } else {
-            ServerMessage("SEARCH_ERROR_NO_FIELDS", "Error searching")
-                .send(ctx, 400)
+            ServerMessage(MessageCode.SearchErrorNoFields).send(ctx)
         }
     }
 }
