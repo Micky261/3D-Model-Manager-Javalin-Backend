@@ -3,9 +3,11 @@ package core.background
 import com.google.inject.Injector
 import data.dao.EmailVerificationDao
 import data.dao.PasswordResetDao
+import data.dao.SessionsDao
 import data.dao.UserDao
 import data.services.EmailVerificationService
 import data.services.PasswordResetService
+import data.services.SessionsService
 import dev.misfitlabs.kotlinguice4.getInstance
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -37,6 +39,7 @@ object CleanUpCoroutine {
                 CleanupPackage(::cleanUploadTemp, 30.minutes),
                 CleanupPackage(::cleanExpiredEmailVerifications, 6.hours),
                 CleanupPackage(::cleanExpiredPasswordResets, 1.hours),
+                CleanupPackage(::cleanExpiredSessions, 6.hours),
             ),
         )
 
@@ -149,9 +152,20 @@ object CleanUpCoroutine {
         }
     }
 
+    private fun cleanExpiredSessions() {
+        val sessionsDao = injector.getInstance<SessionsDao>()
+
+        val expiryTime = Instant.now().minusSeconds(SessionsService.SESSION_VALIDITY_SECONDS).epochSecond
+        val deletedSessions = sessionsDao.deleteExpired(expiryTime)
+
+        if (deletedSessions > 0) {
+            logger.info("Cleaned up $deletedSessions expired session(s)")
+        }
+    }
+
     private data class CleanupPackage(
         val runFunction: () -> Unit,
         val interval: Duration,
-        var lastRun: Instant = Instant.now(),
+        var lastRun: Instant = Instant.EPOCH,
     )
 }

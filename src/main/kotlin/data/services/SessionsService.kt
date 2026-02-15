@@ -11,6 +11,10 @@ import java.time.Instant
 class SessionsService @Inject constructor(
     private val sessionsDao: SessionsDao,
 ) {
+    companion object {
+        const val SESSION_VALIDITY_SECONDS = 60L * 60L * 24L * 28L // 28 days
+    }
+
     fun generateSessionId(): String = randomAlphanumeric(128)
 
     fun insert(userId: Long, sessionId: String) {
@@ -23,7 +27,7 @@ class SessionsService @Inject constructor(
 
     fun get(sessionId: String): Session? = sessionsDao.get(
         sessionId,
-        Instant.now().minusSeconds(60L * 60L * 24L * 28L).epochSecond,
+        Instant.now().minusSeconds(SESSION_VALIDITY_SECONDS).epochSecond,
     )
 
     fun createSession(user: User): SessionDto {

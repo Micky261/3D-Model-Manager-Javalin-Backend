@@ -46,4 +46,7 @@ interface SessionsDao {
         @Bind("sessionId") sessionId: String,
         @Bind("sessionLimit") sessionLimit: Long,
     ): Session?
+
+    @SqlUpdate("DELETE FROM sessions WHERE created_at < FROM_UNIXTIME(:expiryTime)")
+    fun deleteExpired(@Bind("expiryTime") expiryTime: Long): Int
 }
