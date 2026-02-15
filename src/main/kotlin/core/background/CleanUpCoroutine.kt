@@ -108,17 +108,29 @@ object CleanUpCoroutine {
             logger.info("Cleaned up $deletedTokens expired email verification token(s)")
         }
 
-        // Delete unverified users who no longer have any verification tokens
+        // Process affected users
         var deletedUsers = 0
+        var clearedPendingEmails = 0
         affectedUserIds.distinct().forEach { userId ->
             // Check if user still has a valid verification token (e.g., they requested a new one)
             val hasValidToken = emailVerificationDao.getByUserId(userId) != null
 
             if (!hasValidToken) {
-                // Delete user only if they are unverified and have no remaining tokens
-                val deleted = userDao.deleteUnverifiedUser(userId)
-                deletedUsers += deleted
+                val user = userDao.getUserById(userId)
+                if (user != null && user.emailVerifiedAt != null && user.pendingEmail != null) {
+                    // Verified user with expired pending email change -> clear pending email
+                    userDao.clearPendingEmail(userId)
+                    clearedPendingEmails++
+                } else {
+                    // Delete user only if they are unverified and have no remaining tokens
+                    val deleted = userDao.deleteUnverifiedUser(userId)
+                    deletedUsers += deleted
+                }
             }
+        }
+
+        if (clearedPendingEmails > 0) {
+            logger.info("Cleared $clearedPendingEmails expired pending email change(s)")
         }
 
         if (deletedUsers > 0) {

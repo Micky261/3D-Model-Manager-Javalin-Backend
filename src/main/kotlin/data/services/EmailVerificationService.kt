@@ -7,6 +7,8 @@ import data.dao.UserDao
 import utils.randomAlphanumeric
 import java.time.Instant
 
+enum class VerifyResult { SUCCESS, INVALID_TOKEN, EMAIL_ALREADY_TAKEN }
+
 class EmailVerificationService @Inject constructor(
     private val emailVerificationDao: EmailVerificationDao,
     private val userDao: UserDao,
@@ -34,18 +36,29 @@ class EmailVerificationService @Inject constructor(
         return Instant.now().isBefore(expiryTime)
     }
 
-    fun verifyEmail(token: String): Boolean {
-        val verification = getByToken(token) ?: return false
+    fun verifyEmail(token: String): VerifyResult {
+        val verification = getByToken(token) ?: return VerifyResult.INVALID_TOKEN
 
         if (!isTokenValid(verification)) {
             emailVerificationDao.deleteByToken(token)
-            return false
+            return VerifyResult.INVALID_TOKEN
         }
 
-        userDao.setEmailVerified(verification.userId)
-        emailVerificationDao.deleteByUserId(verification.userId)
+        val user = userDao.getUserById(verification.userId) ?: return VerifyResult.INVALID_TOKEN
 
-        return true
+        if (user.pendingEmail != null) {
+            try {
+                userDao.applyPendingEmail(verification.userId)
+            } catch (_: Exception) {
+                emailVerificationDao.deleteByUserId(verification.userId)
+                return VerifyResult.EMAIL_ALREADY_TAKEN
+            }
+        } else {
+            userDao.setEmailVerified(verification.userId)
+        }
+
+        emailVerificationDao.deleteByUserId(verification.userId)
+        return VerifyResult.SUCCESS
     }
 
     fun getVerificationForUser(userId: Long): EmailVerification? = emailVerificationDao.getByUserId(userId)

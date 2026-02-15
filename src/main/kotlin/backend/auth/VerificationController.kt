@@ -6,6 +6,7 @@ import core.javalin.userId
 import data.dto.ServerMessage
 import data.services.EmailVerificationService
 import data.services.UserService
+import data.services.VerifyResult
 import io.javalin.http.Context
 
 class VerificationController @Inject constructor(
@@ -21,12 +22,13 @@ class VerificationController @Inject constructor(
             return
         }
 
-        val success = emailVerificationService.verifyEmail(token)
-
-        if (success) {
-            ServerMessage("EMAIL_VERIFIED", "Your email has been verified successfully").send(ctx, 200)
-        } else {
-            ServerMessage("INVALID_OR_EXPIRED_TOKEN", "The verification link is invalid or has expired").send(ctx, 400)
+        when (emailVerificationService.verifyEmail(token)) {
+            VerifyResult.SUCCESS ->
+                ServerMessage("EMAIL_VERIFIED", "Your email has been verified successfully").send(ctx, 200)
+            VerifyResult.INVALID_TOKEN ->
+                ServerMessage("INVALID_OR_EXPIRED_TOKEN", "The verification link is invalid or has expired").send(ctx, 400)
+            VerifyResult.EMAIL_ALREADY_TAKEN ->
+                ServerMessage("EMAIL_ALREADY_TAKEN", "The email address is already taken by another account").send(ctx, 409)
         }
     }
 
@@ -39,19 +41,30 @@ class VerificationController @Inject constructor(
             return
         }
 
-        if (user.emailVerifiedAt != null) {
-            ServerMessage("ALREADY_VERIFIED", "Your email is already verified").send(ctx, 400)
+        val baseUrl = ctx.header("Origin") ?: ctx.header("Referer")?.substringBefore("/email-resend") ?: ""
+
+        if (user.emailVerifiedAt == null) {
+            val token = emailVerificationService.createVerificationToken(userId)
+            try {
+                emailService.sendVerificationEmail(user.email, user.name, token, baseUrl)
+                ServerMessage("VERIFICATION_RESENT", "Verification email has been resent").send(ctx, 200)
+            } catch (e: Exception) {
+                ServerMessage("EMAIL_SEND_FAILED", "Failed to send verification email").send(ctx, 500)
+            }
             return
         }
 
-        val token = emailVerificationService.createVerificationToken(userId)
-        val baseUrl = ctx.header("Origin") ?: ctx.header("Referer")?.substringBefore("/email-resend") ?: ""
-
-        try {
-            emailService.sendVerificationEmail(user.email, user.name, token, baseUrl)
-            ServerMessage("VERIFICATION_RESENT", "Verification email has been resent").send(ctx, 200)
-        } catch (e: Exception) {
-            ServerMessage("EMAIL_SEND_FAILED", "Failed to send verification email").send(ctx, 500)
+        if (user.pendingEmail != null) {
+            val token = emailVerificationService.createVerificationToken(userId)
+            try {
+                emailService.sendEmailChangeVerification(user.pendingEmail, user.name, token, baseUrl)
+                ServerMessage("VERIFICATION_RESENT", "Verification email has been resent").send(ctx, 200)
+            } catch (e: Exception) {
+                ServerMessage("EMAIL_SEND_FAILED", "Failed to send verification email").send(ctx, 500)
+            }
+            return
         }
+
+        ServerMessage("ALREADY_VERIFIED", "Your email is already verified").send(ctx, 400)
     }
 }

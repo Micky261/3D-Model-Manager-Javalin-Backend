@@ -42,7 +42,11 @@ class ProfileController @Inject constructor(
             ServerMessage("USER_NOT_FOUND", "User not found").send(ctx, 404)
             return
         }
-        ctx.json(mapOf("name" to user.name, "email" to user.email))
+        val profile = mutableMapOf<String, String>("name" to user.name, "email" to user.email)
+        if (user.pendingEmail != null) {
+            profile["pendingEmail"] = user.pendingEmail
+        }
+        ctx.json(profile)
     }
 
     fun changePassword(ctx: Context) {
@@ -83,7 +87,7 @@ class ProfileController @Inject constructor(
             return
         }
 
-        userService.changeEmail(ctx.userId(), body.email)
+        userService.setPendingEmail(ctx.userId(), body.email)
 
         val token = emailVerificationService.createVerificationToken(ctx.userId())
         val baseUrl = ctx.header("Origin") ?: ctx.header("Referer")?.substringBefore("/profile") ?: ""

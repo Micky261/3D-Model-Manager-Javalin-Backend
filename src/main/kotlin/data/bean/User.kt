@@ -10,6 +10,7 @@ data class User(
     val emailVerifiedAt: Instant?,
     val password: String,
     val rights: String? = null,
+    val pendingEmail: String? = null,
     val createdAt: Instant = Instant.now(),
     val updatedAt: Instant = Instant.now(),
 ) {

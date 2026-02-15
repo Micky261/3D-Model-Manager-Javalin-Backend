@@ -50,8 +50,16 @@ class UserService @Inject constructor(
         userDao.updateName(userId, name)
     }
 
-    fun changeEmail(userId: Long, email: String) {
-        userDao.updateEmail(userId, email)
+    fun setPendingEmail(userId: Long, email: String) {
+        userDao.setPendingEmail(userId, email)
+    }
+
+    fun applyPendingEmail(userId: Long) {
+        userDao.applyPendingEmail(userId)
+    }
+
+    fun clearPendingEmail(userId: Long) {
+        userDao.clearPendingEmail(userId)
     }
 
     fun hasAnyUsers(): Boolean = userDao.count() > 0
