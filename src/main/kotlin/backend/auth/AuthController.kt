@@ -4,12 +4,12 @@ import com.google.inject.Inject
 import core.config.AppConfig
 import core.config.bean.RegistrationMode
 import core.email.EmailService
-import data.dto.LoginDto
+import data.dto.Login
 import data.dto.MessageCode
-import data.dto.PasswordResetRequest
-import data.dto.RegisterDto
-import data.dto.ResetPasswordRequest
+import data.dto.Register
 import data.dto.ServerMessage
+import data.dto.requests.PasswordResetRequest
+import data.dto.requests.ResetPasswordRequest
 import data.services.EmailVerificationService
 import data.services.InvitationTokenService
 import data.services.PasswordResetService
@@ -28,7 +28,7 @@ class AuthController @Inject constructor(
     private val passwordResetService: PasswordResetService,
 ) {
     fun login(ctx: Context) {
-        val body = ctx.bodyAsClass<LoginDto>()
+        val body = ctx.bodyAsClass<Login>()
 
         val user = userService.checkLogin(body.email, body.password)
         if (user != null) {
@@ -47,7 +47,7 @@ class AuthController @Inject constructor(
     }
 
     fun register(ctx: Context) {
-        val body = ctx.bodyAsClass<RegisterDto>()
+        val body = ctx.bodyAsClass<Register>()
         val registrationMode = appConfig.config.general.registrationMode
         val isFirstUser = !userService.hasAnyUsers()
 

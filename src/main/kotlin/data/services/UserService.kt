@@ -7,7 +7,7 @@ import data.bean.User
 import data.dao.ModelFileDao
 import data.dao.UserDao
 import data.dao.UserDaoClass
-import data.dto.UserAdminDto
+import data.dto.UserAdmin
 import storage.Storage
 import utils.thumbnail.ThumbnailService
 
@@ -84,7 +84,7 @@ class UserService @Inject constructor(
         userDao.updateEmail(userId, newEmail)
     }
 
-    fun getAllWithStats(): List<UserAdminDto> = userDaoClass.getAllWithStats()
+    fun getAllWithStats(): List<UserAdmin> = userDaoClass.getAllWithStats()
 
     fun deleteUser(userId: Long) {
         val files = modelFileDao.getFilesByUser(userId)

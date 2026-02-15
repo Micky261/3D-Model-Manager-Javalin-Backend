@@ -4,7 +4,7 @@ import com.google.inject.Inject
 import data.bean.Session
 import data.bean.User
 import data.dao.SessionsDao
-import data.dto.SessionDto
+import data.dto.SessionData
 import utils.randomAlphanumeric
 import java.time.Instant
 
@@ -30,11 +30,11 @@ class SessionsService @Inject constructor(
         Instant.now().minusSeconds(SESSION_VALIDITY_SECONDS).epochSecond,
     )
 
-    fun createSession(user: User): SessionDto {
+    fun createSession(user: User): SessionData {
         val sessionId = generateSessionId()
 
         insert(user.id, sessionId, user.rights)
 
-        return SessionDto(sessionId)
+        return SessionData(sessionId)
     }
 }

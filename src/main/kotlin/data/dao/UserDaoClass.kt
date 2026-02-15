@@ -1,13 +1,13 @@
 package data.dao
 
 import com.google.inject.Inject
-import data.dto.UserAdminDto
+import data.dto.UserAdmin
 import org.jdbi.v3.core.Jdbi
 
 class UserDaoClass @Inject constructor(
     private val jdbi: Jdbi,
 ) {
-    fun getAllWithStats(): List<UserAdminDto> = jdbi.open().createQuery(
+    fun getAllWithStats(): List<UserAdmin> = jdbi.open().createQuery(
         """
             SELECT u.id, u.name, u.email, u.created_at,
                    COUNT(DISTINCT m.id) as model_count,
@@ -20,7 +20,7 @@ class UserDaoClass @Inject constructor(
             """,
     )
         .map { rs, _ ->
-            UserAdminDto(
+            UserAdmin(
                 id = rs.getLong("id"),
                 name = rs.getString("name"),
                 email = rs.getString("email"),

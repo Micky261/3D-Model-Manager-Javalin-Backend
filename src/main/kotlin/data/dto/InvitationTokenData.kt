@@ -3,7 +3,7 @@ package data.dto
 import data.bean.InvitationToken
 import java.time.Instant
 
-data class InvitationTokenDto(
+data class InvitationTokenData(
     val id: Long,
     val token: String,
     val createdBy: Long,
@@ -16,7 +16,7 @@ data class InvitationTokenDto(
     val isValid: Boolean,
 ) {
     companion object {
-        fun from(token: InvitationToken): InvitationTokenDto = InvitationTokenDto(
+        fun from(token: InvitationToken): InvitationTokenData = InvitationTokenData(
             id = token.id,
             token = token.token,
             createdBy = token.createdBy,

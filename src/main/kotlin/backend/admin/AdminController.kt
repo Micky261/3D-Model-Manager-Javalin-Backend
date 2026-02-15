@@ -1,11 +1,11 @@
 package backend.admin
 
 import com.google.inject.Inject
-import data.dto.AdminChangeEmailRequest
-import data.dto.CreateInvitationTokenRequest
-import data.dto.InvitationTokenDto
+import data.dto.InvitationTokenData
 import data.dto.MessageCode
 import data.dto.ServerMessage
+import data.dto.requests.AdminChangeEmailRequest
+import data.dto.requests.CreateInvitationTokenRequest
 import data.services.InvitationTokenService
 import data.services.UserService
 import io.javalin.http.Context
@@ -21,7 +21,7 @@ class AdminController @Inject constructor(
     }
 
     fun getInvitationTokens(ctx: Context) {
-        val tokens = invitationTokenService.getAll().map { InvitationTokenDto.from(it) }
+        val tokens = invitationTokenService.getAll().map { InvitationTokenData.from(it) }
         ctx.json(tokens)
     }
 
@@ -29,7 +29,7 @@ class AdminController @Inject constructor(
         val body = ctx.bodyAsClass<CreateInvitationTokenRequest>()
         val userId = ctx.attribute<Long>("userId")!!
         val token = invitationTokenService.createToken(userId, body.expiresInHours)
-        ctx.json(InvitationTokenDto.from(token))
+        ctx.json(InvitationTokenData.from(token))
     }
 
     fun deleteInvitationToken(ctx: Context) {

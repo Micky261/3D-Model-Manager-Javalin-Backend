@@ -1,8 +1,6 @@
 package data.dao
 
-import com.google.inject.Inject
 import data.bean.Model
-import org.jdbi.v3.core.Jdbi
 import org.jdbi.v3.sqlobject.customizer.Bind
 import org.jdbi.v3.sqlobject.customizer.BindBean
 import org.jdbi.v3.sqlobject.statement.GetGeneratedKeys
@@ -112,18 +110,4 @@ interface ModelDao {
         @Bind("userId") userId: Long,
         @Bind("searchString") searchString: String,
     ): List<Model>
-}
-
-class ModelDaoClass @Inject constructor(
-    private val jdbi: Jdbi,
-) {
-    fun search(userId: Long, searchFields: Set<String>, searchTerm: String): List<Model> {
-        val whereString = searchFields.joinToString("OR") { "$it LIKE concat('%', :searchTerm, '%')" }
-
-        return jdbi.open().createQuery("SELECT * FROM models WHERE user_id = :userId AND ($whereString);")
-            .bind("userId", userId)
-            .bind("searchTerm", searchTerm)
-            .mapTo(Model::class.java)
-            .toList()
-    }
 }

@@ -2,7 +2,7 @@ package data.dto
 
 import java.time.Instant
 
-data class UserAdminDto(
+data class UserAdmin(
     val id: Long,
     val name: String,
     val email: String,

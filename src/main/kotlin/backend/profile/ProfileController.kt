@@ -4,13 +4,13 @@ import com.google.inject.Inject
 import core.config.AppConfig
 import core.email.EmailService
 import core.javalin.userId
-import data.dto.ChangeEmailRequest
-import data.dto.ChangeNameRequest
-import data.dto.ChangePasswordRequest
 import data.dto.MessageCode
 import data.dto.ServerMessage
-import data.dto.UserSettingDto
+import data.dto.UserSetting
 import data.dto.UserSettingsType
+import data.dto.requests.ChangeEmailRequest
+import data.dto.requests.ChangeNameRequest
+import data.dto.requests.ChangePasswordRequest
 import data.services.EmailVerificationService
 import data.services.UserService
 import data.services.UserSettingsService
@@ -29,7 +29,7 @@ class ProfileController @Inject constructor(
     }
 
     fun setSettingsAccounts(ctx: Context) {
-        val receivedSettings = ctx.bodyAsClass<List<UserSettingDto>>()
+        val receivedSettings = ctx.bodyAsClass<List<UserSetting>>()
             .map { it.toUserSetting(ctx.userId()) }
 
         userSettingsService.saveSettings(receivedSettings)
