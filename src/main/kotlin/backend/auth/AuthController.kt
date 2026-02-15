@@ -91,7 +91,7 @@ class AuthController @Inject constructor(
 
         val token = emailVerificationService.createVerificationToken(userId)
 
-        val baseUrl = ctx.header("Origin") ?: ctx.header("Referer")?.substringBefore("/register") ?: ""
+        val baseUrl = ctx.header("Origin") ?: ctx.header("Referer")?.substringBefore("/auth") ?: ""
 
         try {
             emailService.sendVerificationEmail(body.email, body.name, token, baseUrl)
@@ -114,7 +114,7 @@ class AuthController @Inject constructor(
 
         if (user != null && user.emailVerifiedAt != null) {
             val token = passwordResetService.createResetToken(body.email)
-            val baseUrl = ctx.header("Origin") ?: ctx.header("Referer")?.substringBefore("/forgot-password") ?: ""
+            val baseUrl = ctx.header("Origin") ?: ctx.header("Referer")?.substringBefore("/auth") ?: ""
 
             try {
                 emailService.sendPasswordResetEmail(body.email, token, baseUrl)

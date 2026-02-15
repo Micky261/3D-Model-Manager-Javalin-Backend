@@ -30,7 +30,7 @@ class EmailService @Inject constructor(
 
     fun sendVerificationEmail(toEmail: String, toName: String, verificationToken: String, baseUrl: String) {
         val mailConfig = appConfig.config.mail
-        val verificationLink = "$baseUrl/email-verify/$verificationToken"
+        val verificationLink = "$baseUrl/auth/email-verify/$verificationToken"
 
         val email = EmailBuilder.startingBlank()
             .from(mailConfig.from_name, mailConfig.from_address)
@@ -95,7 +95,7 @@ class EmailService @Inject constructor(
 
     fun sendPasswordResetEmail(toEmail: String, resetToken: String, baseUrl: String) {
         val mailConfig = appConfig.config.mail
-        val resetLink = "$baseUrl/password-reset/$resetToken"
+        val resetLink = "$baseUrl/auth/password-reset/$resetToken"
 
         val email = EmailBuilder.startingBlank()
             .from(mailConfig.from_name, mailConfig.from_address)
