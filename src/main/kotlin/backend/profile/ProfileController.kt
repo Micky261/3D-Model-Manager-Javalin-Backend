@@ -90,7 +90,7 @@ class ProfileController @Inject constructor(
 
         try {
             val user = userService.getById(ctx.userId())
-            emailService.sendVerificationEmail(body.email, user?.name ?: "", token, baseUrl)
+            emailService.sendEmailChangeVerification(body.email, user?.name ?: "", token, baseUrl)
         } catch (_: Exception) {
             // Email send failure is non-critical here
         }
