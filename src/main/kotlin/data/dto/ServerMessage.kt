@@ -46,7 +46,7 @@ enum class MessageCode(val httpStatus: Int) {
     TargetAlreadyExists(409),
 
     // Import
-    MissingSessionId(424),
+    MissingCredentials(424),
     OrderFailed(500),
     ContactAdmin(500),
 

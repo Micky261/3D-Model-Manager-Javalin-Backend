@@ -7,7 +7,7 @@ import data.bean.Model
 import data.bean.ModelFileType
 import data.bean.ModelTag
 import data.dto.UserSettingKey
-import io.javalin.http.FailedDependencyResponse
+import data.importer.exception.MissingCredentialsException
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.headers
@@ -42,7 +42,7 @@ class MakerWorldImporter : BaseImporter() {
         val downloadUrl = modelUrl + downloadUrlPostfix
 
         if (userSettingsService.getSetting(userId, UserSettingKey.MakerWorldSessionToken) == null) {
-            throw FailedDependencyResponse("MakerWorldSessionToken is not set")
+            throw MissingCredentialsException("MakerWorldSessionToken is not set")
         }
 
         val metadata: JsonNode = runBlocking {

@@ -6,7 +6,7 @@ import data.bean.FileType
 import data.bean.Model
 import data.bean.ModelFileType
 import data.bean.ModelTag
-import io.javalin.http.FailedDependencyResponse
+import data.importer.exception.MissingCredentialsException
 import io.ktor.client.call.body
 import io.ktor.client.request.headers
 import io.ktor.client.request.post
@@ -48,7 +48,7 @@ class Cults3DImporter : BaseImporter() {
 
         // Necessary prechecks
         val username = config.config.importer.cults3d?.username
-            ?: throw FailedDependencyResponse("Cults3D Login data not provided in settings")
+            ?: throw MissingCredentialsException("Cults3D Login data not provided in settings")
         val password = config.config.importer.cults3d.password
         // Only necessary for ordering process, see below
 //        if (userSettingsService.getSetting(userId, UserSettingKey.Cults3dSessionId) == null) {

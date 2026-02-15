@@ -6,10 +6,10 @@ import data.dto.MessageCode
 import data.dto.ServerMessage
 import data.importer.BaseImporter
 import data.importer.ImportSource
+import data.importer.exception.ImportFailedException
+import data.importer.exception.MissingCredentialsException
 import data.services.ModelService
 import io.javalin.http.Context
-import io.javalin.http.FailedDependencyResponse
-import io.javalin.http.InternalServerErrorResponse
 import io.javalin.http.NotFoundResponse
 import io.javalin.http.bodyAsClass
 import io.javalin.http.pathParamAsClass
@@ -25,14 +25,10 @@ class ImporterController @Inject constructor(
             val params = ctx.bodyAsClass<Map<String, String>>()
             val modelId = importer.import(ctx.userId(), params)
             ctx.json(modelService.get(ctx.userId(), modelId) ?: throw NotFoundResponse())
-        } catch (e: FailedDependencyResponse) {
-            // TODO: Translations in frontend need grammar check, Translation keys should match standard
-            // TODO: Define own Exceptions as its used multiple times
-            ServerMessage(MessageCode.MissingSessionId).send(ctx)
-        } catch (e: InternalServerErrorResponse) {
+        } catch (e: MissingCredentialsException) {
+            ServerMessage(MessageCode.MissingCredentials).send(ctx)
+        } catch (e: ImportFailedException) {
             ServerMessage(MessageCode.OrderFailed).send(ctx)
-//        } catch (e: Exception) {
-//            ServerMessage(MessageCode.ContactAdmin).send(ctx)
         }
     }
 
