@@ -2,6 +2,7 @@ package backend.auth
 
 import com.google.inject.Inject
 import core.email.EmailService
+import core.javalin.locale
 import core.javalin.userId
 import data.dto.MessageCode
 import data.dto.ServerMessage
@@ -49,7 +50,7 @@ class VerificationController @Inject constructor(
         if (user.emailVerifiedAt == null) {
             val token = emailVerificationService.createVerificationToken(userId)
             try {
-                emailService.sendVerificationEmail(user.email, user.name, token, baseUrl)
+                emailService.sendVerificationEmail(user.email, user.name, token, baseUrl, ctx.locale())
                 ServerMessage(MessageCode.VerificationResent).send(ctx)
             } catch (e: Exception) {
                 ServerMessage(MessageCode.EmailSendFailed).send(ctx)
@@ -60,7 +61,7 @@ class VerificationController @Inject constructor(
         if (user.pendingEmail != null) {
             val token = emailVerificationService.createVerificationToken(userId)
             try {
-                emailService.sendEmailChangeVerification(user.pendingEmail, user.name, token, baseUrl)
+                emailService.sendEmailChangeVerification(user.pendingEmail, user.name, token, baseUrl, ctx.locale())
                 ServerMessage(MessageCode.VerificationResent).send(ctx)
             } catch (e: Exception) {
                 ServerMessage(MessageCode.EmailSendFailed).send(ctx)

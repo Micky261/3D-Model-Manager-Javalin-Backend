@@ -1,6 +1,7 @@
 package data
 
 import core.email.EmailService
+import core.email.EmailTranslationService
 import data.services.AccessService
 import data.services.CollectionService
 import data.services.EmailVerificationService
@@ -36,6 +37,7 @@ object ServiceModule : KotlinModule() {
         // Other services
         bind<AccessService>()
         bind<EmailService>()
+        bind<EmailTranslationService>()
         bind<ThumbnailService>()
     }
 }

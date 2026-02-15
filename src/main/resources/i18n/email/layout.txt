@@ -1,0 +1,11 @@
+{{title}}
+
+{{greeting}}
+
+{{body}}
+
+{{link}}
+
+{{expiry}}
+
+{{footer}}

@@ -4,6 +4,7 @@ import com.google.inject.Inject
 import core.config.AppConfig
 import core.config.bean.RegistrationMode
 import core.email.EmailService
+import core.javalin.locale
 import data.dto.Login
 import data.dto.MessageCode
 import data.dto.Register
@@ -92,7 +93,7 @@ class AuthController @Inject constructor(
         val baseUrl = ctx.header("Origin") ?: ctx.header("Referer")?.substringBefore("/auth") ?: ""
 
         try {
-            emailService.sendVerificationEmail(body.email, body.name, token, baseUrl)
+            emailService.sendVerificationEmail(body.email, body.name, token, baseUrl, ctx.locale())
             ServerMessage(MessageCode.RegistrationSuccess).send(ctx)
         } catch (e: Exception) {
             ServerMessage(MessageCode.EmailSendFailed).send(ctx, 201)
@@ -108,7 +109,7 @@ class AuthController @Inject constructor(
             val baseUrl = ctx.header("Origin") ?: ctx.header("Referer")?.substringBefore("/auth") ?: ""
 
             try {
-                emailService.sendPasswordResetEmail(body.email, token, baseUrl)
+                emailService.sendPasswordResetEmail(body.email, token, baseUrl, ctx.locale())
             } catch (_: Exception) {
                 // Silently ignore send failures to not leak information
             }

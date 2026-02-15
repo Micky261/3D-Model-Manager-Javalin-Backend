@@ -3,6 +3,7 @@ package backend.profile
 import com.google.inject.Inject
 import core.config.AppConfig
 import core.email.EmailService
+import core.javalin.locale
 import core.javalin.userId
 import data.dto.MessageCode
 import data.dto.ServerMessage
@@ -94,7 +95,7 @@ class ProfileController @Inject constructor(
 
         try {
             val user = userService.getById(ctx.userId())
-            emailService.sendEmailChangeVerification(body.email, user?.name ?: "", token, baseUrl)
+            emailService.sendEmailChangeVerification(body.email, user?.name ?: "", token, baseUrl, ctx.locale())
         } catch (_: Exception) {
             // Email send failure is non-critical here
         }
